@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 
 // ========================== STRUCT ==========================
 typedef struct {
@@ -97,15 +98,38 @@ void clearScreen() {
     #endif
 }
 
+// FLIGHT BOOKING MENU
+
+
+
 // ===================== CUSTOMER MENU =====================
 void customerMenu() {
+    int choice;
     clearScreen();
     printf("==================================================\n");
     printf("                  CUSTOMER MENU                   \n");
     printf("==================================================\n");
+    printf("1. Book Flight\n");
+    printf("2. View History\n");
+    printf("3. Back to Main Menu\n");
+    printf("==================================================\n");
     printf("Press Enter to return to main menu...");
-    getchar(); getchar();
-}
+    scanf("%d", &choice);
+        switch (choice) {
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                return;
+            default:
+                printf("\nInvalid choice. Press Enter to try again...");
+                getchar(); getchar();
+
+    } while (choice != 3);
+    return;
+
+} 
 
 // ===================== OWNER MENU =====================
 void ownerMenu() {
