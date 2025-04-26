@@ -1,0 +1,21 @@
+Airplane ID,Airplane Model,Number of seats,First Class Seats,Business Class Seats,Economy Class Seats,Current Status
+1,Boeing 737-800,189,0,16,173,Active
+2,Airbus A320,180,0,12,168,Active
+3,Boeing 777-300ER,396,8,42,346,Active
+4,Airbus A350-900,325,0,32,293,Active
+5,Boeing 787-9,296,0,30,266,Maintenance
+6,Airbus A380,853,14,70,769,Active
+7,Boeing 747-8,467,8,80,379,Maintenance
+8,Embraer E190,100,0,8,92,Active
+9,Bombardier CRJ900,90,0,6,84,Active
+10,Airbus A321neo,244,0,20,224,Active
+11,Boeing 787-10,318,0,32,286,Active
+12,Airbus A330-900neo,287,0,28,259,Active
+13,Boeing 767-300ER,269,6,24,239,Active
+14,Airbus A310,280,6,20,254,Retired
+15,McDonnell Douglas MD-11,293,6,32,255,Retired
+16,Lockheed L-1011 TriStar,300,8,30,262,Retired
+17,Ilyushin Il-96,262,6,18,238,Active
+18,Tupolev Tu-204,210,0,12,198,Active
+19,Comac C919,168,0,8,160,Active
+20,Irkut MC-21,211,0,16,195,Active
