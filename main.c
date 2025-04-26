@@ -254,13 +254,19 @@ void addFlight() {
     }
 
     // Show available planes
-    printf("Available Airplanes:\n");
-    for (int i = 0; i < planeCount; i++) {
-        printf("%d. ID: %s | Model: %s | Seats (First: %d, Business: %d, Economy: %d)\n",
-               i + 1, planes[i].airplaneID, planes[i].model,
-               planes[i].firstClassSeats, planes[i].businessClassSeats, planes[i].economyClassSeats);
-    }
+    printf("%-4s %-12s %-25s %-8s %-10s %-8s\n",
+    "No.", "AirplaneID", "Model", "First", "Business", "Economy");
+    printf("---------------------------------------------------------------------------\n");
 
+    for (int i = 0; i < planeCount; i++) {
+        printf("%-4d %-12s %-25s %-8d %-10d %-8d\n",
+        i + 1,
+        planes[i].airplaneID,
+        planes[i].model,
+        planes[i].firstClassSeats,
+        planes[i].businessClassSeats,
+        planes[i].economyClassSeats);
+    }
     int selected;
     do {
         printf("Select an airplane by number (1-%d): ", planeCount);
