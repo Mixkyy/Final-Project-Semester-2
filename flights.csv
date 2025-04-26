@@ -1,2 +1,5 @@
-FlightID,departure,destination,flight_date,flight_time,Price,Capacity,SeatsAvailable
-122,BKK,YYZ,2025-05-01,10:20,47500.00,500,500
+FlightID,Departure,Destination,Date,Time,AirplaneID,AirplaneModel,FirstClassSeats,BusinessClassSeats,EconomyClassSeats,Price,Capacity,SeatsAvailable
+1001,BKK,NRT,2025-06-01,09:00,A001,Boeing 787-9,8,30,200,400.00,238,238
+1002,BKK,SIN,2025-06-05,13:30,A002,Airbus A350-900,10,24,253,380.00,287,287
+1003,HKT,KIX,2025-07-10,16:00,A004,Boeing 737-800,8,24,157,250.00,189,189
+1004,BKK,NRT,2025-05-05,12:00,A004,Boeing 737-800,8,24,157,15000.00,189,189
