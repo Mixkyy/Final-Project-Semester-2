@@ -31,15 +31,98 @@ typedef struct {
     char status[20]; 
 } Plane;
 
+typedef struct {
+    int row;
+    char column;
+    int occupied;
+} Seat;
+
+// ========================== DATA STRUCTURES ==========================
+
+// Node for Flight Linked List
+typedef struct FlightNode {
+    Flight data;
+    struct FlightNode* next;
+} FlightNode;
+
+// Passenger Struct (You need it too)
+typedef struct {
+    int passengerID;
+    char firstName[50];
+    char lastName[50];
+    char gender[10];
+    char dob[20];
+    char passportNumber[20];
+    char nationality[30];
+    char phoneNumber[20];
+    char email[50];
+    char seatNumber[10];
+    int flightID;
+    char classType[20];
+    char specialRequest[100];
+    char bookingDate[20];
+} Passenger;
+
+// Node for Passenger Linked List
+typedef struct PassengerNode {
+    Passenger data;
+    struct PassengerNode* next;
+} PassengerNode;
+
+// Graph Connection between Airports
+typedef struct Connection {
+    char destinationCode[10];
+    float firstClassPrice;
+    float businessClassPrice;
+    float economyClassPrice;
+    int distanceKM;
+    struct Connection* next;
+} Connection;
+
+// Airport Struct
+typedef struct Airport {
+    char airportCode[10];
+    Connection* connections;
+} Airport;
+
+// BST Node for Flight Searching
+typedef struct FlightTreeNode {
+    char destination[10]; // Key
+    FlightNode* flights;   // Linked list of flights to this destination
+    struct FlightTreeNode* left;
+    struct FlightTreeNode* right;
+} FlightTreeNode;
+
+
 // ===================== FUNCTION DECLARATIONS =====================
 void clearScreen();
 void customerMenu();
 void ownerMenu();
 void flightMenu();
 void passengerMenu();
-
 void addFlight(), removeFlight(), editFlight(), viewFlights();
 void addPassenger(), removePassenger(), editPassenger(), viewPassengers();
+void loadFlights();
+void loadPassengers();
+void loadAirports();
+void initializeAirport(const char* code);
+Airport* findAirport(const char* code);
+void addConnection(const char* from, const char* to, int distanceKM);
+void searchFlightsByDestination();
+void chooseClassAndSeat(FlightNode* chosenFlight);
+void initializeSeatMap(FlightNode* chosenFlight, char* classType);
+
+// ========================== BST FUNCTION DECLARATIONS ==========================
+FlightTreeNode* insertFlightTree(FlightTreeNode* root, Flight flight);
+void buildFlightTree();
+FlightTreeNode* searchFlightTree(FlightTreeNode* root, const char* destination);
+
+// ========================== GLOBAL VARIABLES ==========================
+FlightNode* flightHead = NULL;
+PassengerNode* passengerHead = NULL;
+Airport airports[10];
+int airportCount = 0;
+FlightTreeNode* flightTreeRoot = NULL;
 
 // ===================== DATE AND TIME CHECKER  =====================
 int isValidDate(const char *date) {
@@ -68,23 +151,195 @@ int isValidTime(const char *time) {
         return 0;
     return 1;
 }
+
+// ========================== LOAD FUNCTIONS ==========================
+
+void loadFlights() {
+    FILE *file = fopen("flights.csv", "r");
+    if (!file) return;
+
+    char line[512];
+    fgets(line, sizeof(line), file); // Skip header
+
+    while (fgets(line, sizeof(line), file)) {
+        FlightNode* newNode = (FlightNode*)malloc(sizeof(FlightNode));
+        sscanf(line, "%d,%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%d,%d,%d,%f,%d,%d",
+               &newNode->data.flightID,
+               newNode->data.departure,
+               newNode->data.destination,
+               newNode->data.flight_date,
+               newNode->data.flight_time,
+               newNode->data.airplaneID,
+               newNode->data.airplaneModel,
+               &newNode->data.firstClassSeats,
+               &newNode->data.businessClassSeats,
+               &newNode->data.economyClassSeats,
+               &newNode->data.price,
+               &newNode->data.capacity,
+               &newNode->data.seatsAvailable);
+        newNode->next = flightHead;
+        flightHead = newNode;
+    }
+    fclose(file);
+}
+
+void loadPassengers() {
+    FILE *file = fopen("passengers.csv", "r");
+    if (!file) return;
+
+    char line[512];
+    fgets(line, sizeof(line), file); // Skip header
+
+    while (fgets(line, sizeof(line), file)) {
+        PassengerNode* newNode = (PassengerNode*)malloc(sizeof(PassengerNode));
+        sscanf(line, "%d,%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%d,%[^,],%[^,],%[^\\n]",
+               &newNode->data.passengerID,
+               newNode->data.firstName,
+               newNode->data.lastName,
+               newNode->data.gender,
+               newNode->data.dob,
+               newNode->data.passportNumber,
+               newNode->data.nationality,
+               newNode->data.phoneNumber,
+               newNode->data.email,
+               newNode->data.seatNumber,
+               &newNode->data.flightID,
+               newNode->data.classType,
+               newNode->data.specialRequest,
+               newNode->data.bookingDate);
+        newNode->next = passengerHead;
+        passengerHead = newNode;
+    }
+    fclose(file);
+}
+
+void initializeAirport(const char* code) {
+    strcpy(airports[airportCount].airportCode, code);
+    airports[airportCount].connections = NULL;
+    airportCount++;
+}
+
+Airport* findAirport(const char* code) {
+    for (int i = 0; i < airportCount; i++) {
+        if (strcmp(airports[i].airportCode, code) == 0)
+            return &airports[i];
+    }
+    return NULL;
+}
+
+void addConnection(const char* from, const char* to, int distanceKM) {
+    Airport* origin = findAirport(from);
+    if (!origin) return;
+
+    Connection* newConn = (Connection*)malloc(sizeof(Connection));
+    strcpy(newConn->destinationCode, to);
+    newConn->distanceKM = distanceKM;
+    newConn->economyClassPrice = distanceKM * 0.1;
+    newConn->businessClassPrice = distanceKM * 0.2;
+    newConn->firstClassPrice = distanceKM * 0.3;
+    newConn->next = origin->connections;
+    origin->connections = newConn;
+}
+
+void loadAirports() {
+    const char* airportCodes[] = {"BKK", "HKT", "SYD", "NRT", "GRU", "BER", "YYZ"};
+    int total = sizeof(airportCodes) / sizeof(airportCodes[0]);
+    for (int i = 0; i < total; i++) {
+        initializeAirport(airportCodes[i]);
+    }
+
+    addConnection("BKK", "HKT", 675);
+    addConnection("BKK", "SYD", 7520);
+    addConnection("BKK", "NRT", 4600);
+    addConnection("BKK", "BER", 8600);
+    addConnection("HKT", "BKK", 675);
+    addConnection("HKT", "SYD", 7170);
+    addConnection("SYD", "BKK", 7520);
+    addConnection("SYD", "GRU", 13300);
+    addConnection("NRT", "BKK", 4600);
+    addConnection("NRT", "YYZ", 10300);
+    addConnection("NRT", "BER", 9000);
+    addConnection("GRU", "SYD", 13300);
+    addConnection("GRU", "YYZ", 8300);
+    addConnection("BER", "BKK", 8600);
+    addConnection("BER", "NRT", 9000);
+    addConnection("BER", "YYZ", 6300);
+    addConnection("YYZ", "NRT", 10300);
+    addConnection("YYZ", "GRU", 8300);
+    addConnection("YYZ", "BER", 6300);
+}
+
+// ========================== BST FUNCTIONS ==========================
+
+// Insert one flight into the BST
+FlightTreeNode* insertFlightTree(FlightTreeNode* root, Flight flight) {
+    if (!root) {
+        FlightTreeNode* newNode = (FlightTreeNode*)malloc(sizeof(FlightTreeNode));
+        strcpy(newNode->destination, flight.destination);
+        newNode->flights = NULL;
+        newNode->left = newNode->right = NULL;
+
+        // Add first flight into this node
+        FlightNode* newFlight = (FlightNode*)malloc(sizeof(FlightNode));
+        newFlight->data = flight;
+        newFlight->next = NULL;
+        newNode->flights = newFlight;
+        return newNode;
+    }
+
+    int cmp = strcmp(flight.destination, root->destination);
+    if (cmp == 0) {
+        // Destination already exists, add new flight to linked list
+        FlightNode* newFlight = (FlightNode*)malloc(sizeof(FlightNode));
+        newFlight->data = flight;
+        newFlight->next = root->flights;
+        root->flights = newFlight;
+    } else if (cmp < 0) {
+        root->left = insertFlightTree(root->left, flight);
+    } else {
+        root->right = insertFlightTree(root->right, flight);
+    }
+    return root;
+}
+
+// Wrapper function to insert from memory flight linked list
+void buildFlightTree() {
+    FlightNode* current = flightHead;
+    while (current) {
+        flightTreeRoot = insertFlightTree(flightTreeRoot, current->data);
+        current = current->next;
+    }
+}
+
+// Search flights by destination
+FlightTreeNode* searchFlightTree(FlightTreeNode* root, const char* destination) {
+    if (!root) return NULL;
+    int cmp = strcmp(destination, root->destination);
+    if (cmp == 0) return root;
+    else if (cmp < 0) return searchFlightTree(root->left, destination);
+    else return searchFlightTree(root->right, destination);
+}
+
 // =========================== MAIN ===========================
 int main() {
     int choice;
 
+    loadFlights();
+    loadPassengers();
+    loadAirports();
+    buildFlightTree();
+
     do {
         clearScreen();
-
-        printf("==================================================\n");
-        printf("          WELCOME TO FLIGHT RESERVATION          \n");
-        printf("==================================================\n");
+        printf("===================================================================\n");
+        printf("                   WELCOME TO FLIGHT RESERVATION                      \n");
+        printf("===================================================================\n");
         printf("1. Customer\n");
         printf("2. Owner\n");
         printf("3. Exit\n");
-        printf("==================================================\n");
+        printf("===================================================================\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
-
         switch (choice) {
             case 1:
                 customerMenu();
@@ -113,38 +368,249 @@ void clearScreen() {
     #endif
 }
 
-// FLIGHT BOOKING MENU
-
-
-
 // ===================== CUSTOMER MENU =====================
 void customerMenu() {
     int choice;
-    clearScreen();
-    printf("==================================================\n");
-    printf("                  CUSTOMER MENU                   \n");
-    printf("==================================================\n");
-    printf("1. Book Flight\n");
-    printf("2. View History\n");
-    printf("3. Back to Main Menu\n");
-    printf("==================================================\n");
-    printf("Press Enter to return to main menu...");
-    scanf("%d", &choice);
+    do {
+        clearScreen();
+        printf("===================================================================\n");
+        printf("                           CUSTOMER MENU                                \n");
+        printf("===================================================================\n");
+        printf("1. Book Flight\n");
+        printf("2. View History\n");
+        printf("3. Back to Main Menu\n");
+        printf("===================================================================\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        while (getchar() != '\n'); // Clear buffer after scanf
+
         switch (choice) {
             case 1:
+                searchFlightsByDestination();
                 break;
             case 2:
+                // View History (can leave empty for now)
                 break;
             case 3:
-                return;
+                return; // Exit customer menu
             default:
                 printf("\nInvalid choice. Press Enter to try again...");
-                getchar(); getchar();
+                getchar();
+        }
 
     } while (choice != 3);
-    return;
+}
 
-} 
+// Helper to print all destinations in BST (Inorder traversal)
+void printDestinations(FlightTreeNode* root) {
+    if (!root) return;
+    printDestinations(root->left);
+    printf("%s ", root->destination);
+    printDestinations(root->right);
+}
+
+// ===================== SEARCH FLIGHT BY DESTINATION =====================
+
+void searchFlightsByDestination() {
+    clearScreen();
+    printf("===================================================================\n");
+    printf("                    SEARCH FLIGHT BY DESTINATION                      \n");
+    printf("===================================================================\n");
+
+    printf("Available Destinations:\n");
+    printDestinations(flightTreeRoot);
+    printf("\n-------------------------------------------------------------------\n");
+
+    char destination[10];
+    char travelDate[20];
+
+    printf("Enter Destination Airport Code: ");
+    scanf("%s", destination);
+
+    printf("Enter Travel Date (YYYY-MM-DD): ");
+    scanf("%s", travelDate);
+    
+    clearScreen();
+    printf("===================================================================\n");
+    printf("                    SEARCH FLIGHT BY DESTINATION                      \n");
+    printf("===================================================================\n");
+
+    FlightTreeNode* result = searchFlightTree(flightTreeRoot, destination);
+
+    if (!result) {
+        printf("\nNo flights found to %s.\n", destination);
+        printf("Press Enter to return...");
+        getchar(); getchar();
+        return;
+    }
+
+    printf("\nAvailable Flights to %s on %s:\n", destination, travelDate);
+    printf("%-8s %-8s %-8s %-12s %-6s %-10s %-12s\n",
+           "FlightID", "From", "To", "Date", "Time", "PlaneID", "Available");
+    printf("-------------------------------------------------------------------\n");
+
+    FlightNode* f = result->flights;
+    int flightsFound = 0;
+
+    while (f) {
+        if (strcmp(f->data.flight_date, travelDate) == 0) { // Date matches
+            printf("%-8d %-8s %-8s %-12s %-6s %-10s %-12d\n",
+                   f->data.flightID, f->data.departure, f->data.destination,
+                   f->data.flight_date, f->data.flight_time,
+                   f->data.airplaneID, f->data.seatsAvailable);
+            flightsFound++;
+        }
+        f = f->next;
+    }
+
+    if (flightsFound == 0) {
+        printf("\nNo flights found on that date.\n");
+        printf("Press Enter to return...");
+        getchar(); getchar();
+        return;
+    }
+
+    printf("\nEnter Flight ID to book (0 to cancel): ");
+    int selectedFlightID;
+    scanf("%d", &selectedFlightID);
+
+    if (selectedFlightID == 0) {
+        printf("Booking cancelled. Press Enter to return...");
+        getchar(); getchar();
+        return;
+    }
+
+    // Search for the selected flight again
+    f = result->flights;
+    while (f) {
+        if (f->data.flightID == selectedFlightID && strcmp(f->data.flight_date, travelDate) == 0) {
+            break;
+        }
+        f = f->next;
+    }
+
+    if (!f) {
+        printf("Invalid Flight ID. Press Enter to return...");
+        getchar(); getchar();
+        return;
+    }
+
+    chooseClassAndSeat(f);
+}
+
+// ===================== CHOOSE CLASS AND SEAT =====================
+
+void chooseClassAndSeat(FlightNode* chosenFlight) {
+    clearScreen();
+    printf("===================================================================\n");
+    printf("                        SELECT CLASS TYPE                           \n");
+    printf("===================================================================\n");
+
+    int choice;
+    printf("1. First Class\n");
+    printf("2. Business Class\n");
+    printf("3. Economy Class\n");
+    printf("4. Cancel\n");
+    printf("===================================================================\n");
+    printf("Enter your choice: ");
+    scanf("%d", &choice);
+    if (choice == 4) {
+        printf("\nBooking cancelled. Press Enter to return...");
+        getchar(); getchar();
+        return;
+    }
+
+    char classType[20];
+    int totalSeats = 0;
+    int seatRows = 0;
+    int seatsPerRow = 0;
+
+    switch (choice) {
+        case 1:
+            strcpy(classType, "First");
+            totalSeats = chosenFlight->data.firstClassSeats;
+            seatsPerRow = 4; // Example: First Class usually 1-2-1 or 2-2
+            break;
+        case 2:
+            strcpy(classType, "Business");
+            totalSeats = chosenFlight->data.businessClassSeats;
+            seatsPerRow = 6; // Example: Business Class 2-2-2
+            break;
+        case 3:
+            strcpy(classType, "Economy");
+            totalSeats = chosenFlight->data.economyClassSeats;
+            seatsPerRow = 9; // Example: Economy Class 3-3-3
+            break;
+        default:
+            printf("\nInvalid choice. Press Enter to return...");
+            getchar(); getchar();
+            return;
+    }
+
+    seatRows = (totalSeats + seatsPerRow - 1) / seatsPerRow; // Calculate number of rows
+
+    initializeSeatMap(chosenFlight, classType);
+}
+
+void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
+    clearScreen();
+    printf("===================================================================\n");
+    printf("                      SEAT MAP - %s CLASS                           \n", classType);
+    printf("===================================================================\n");
+
+
+    int totalSeats = 0;
+    int seatsPerRow = 0;
+    int startRow = 1;
+    char seatColumns[10]; // Max 10 columns like A-I
+
+    if (strcmp(classType, "First") == 0) {
+        totalSeats = chosenFlight->data.firstClassSeats;
+        seatsPerRow = 4;
+        strcpy(seatColumns, "ABCD");
+    } else if (strcmp(classType, "Business") == 0) {
+        totalSeats = chosenFlight->data.businessClassSeats;
+        seatsPerRow = 4; // assuming 2-2-2 layout
+        strcpy(seatColumns, "ABCD");
+    } else if (strcmp(classType, "Economy") == 0) {
+        totalSeats = chosenFlight->data.economyClassSeats;
+        seatsPerRow = 9; // 3-3-3 layout
+        strcpy(seatColumns, "ABCDEFGHI");
+    }
+
+    int rows = (totalSeats + seatsPerRow - 1) / seatsPerRow;
+    int seatIndex = 0;
+
+    // Print column headers
+        printf("\n    "); // Start some margin before the seat columns
+        for (int i = 0; seatColumns[i] != '\0'; i++) {
+            printf(" [%c] ", seatColumns[i]); // Print letter inside [ ] box spacing
+            if (strcmp(classType, "Economy") == 0 && (i + 1) % 3 == 0 && seatColumns[i+1] != '\0') {
+                printf("    "); // Extra aisle space only for economy
+            }
+        }
+        printf("\n-------------------------------------------------------------------\n");
+    // Print rows and seats
+    for (int r = startRow; r < startRow + rows; r++) {
+        printf("%-4d", r);
+        for (int c = 0; seatColumns[c] != '\0'; c++) {
+            if (seatIndex < totalSeats) {
+                // Here you would check if the seat is booked (for now assume all available)
+                printf(" [ ] ");
+                seatIndex++;
+            } else {
+                printf("     ");
+            }
+            if (strcmp(classType, "Economy") == 0 && (c + 1) % 3 == 0 && seatColumns[c+1] != '\0') {
+                printf("   "); // Add aisle space only in Economy
+            }
+        }
+        printf("\n");
+    }
+
+    printf("\nPress Enter to continue...");
+    getchar(); getchar();
+}
 
 // ===================== OWNER MENU =====================
 void ownerMenu() {
@@ -278,13 +744,19 @@ void addFlight() {
     }
 
     // Show available planes
-    printf("Available Airplanes:\n");
-    for (int i = 0; i < planeCount; i++) {
-        printf("%d. ID: %s | Model: %s | Seats (First: %d, Business: %d, Economy: %d)\n",
-               i + 1, planes[i].airplaneID, planes[i].model,
-               planes[i].firstClassSeats, planes[i].businessClassSeats, planes[i].economyClassSeats);
-    }
+    printf("%-4s %-12s %-25s %-8s %-10s %-8s\n",
+    "No.", "AirplaneID", "Model", "First", "Business", "Economy");
+    printf("---------------------------------------------------------------------------\n");
 
+    for (int i = 0; i < planeCount; i++) {
+        printf("%-4d %-12s %-25s %-8d %-10d %-8d\n",
+        i + 1,
+        planes[i].airplaneID,
+        planes[i].model,
+        planes[i].firstClassSeats,
+        planes[i].businessClassSeats,
+        planes[i].economyClassSeats);
+    }
     int selected;
     do {
         printf("Select an airplane by number (1-%d): ", planeCount);
