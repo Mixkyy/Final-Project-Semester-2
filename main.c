@@ -111,6 +111,8 @@ void addConnection(const char* from, const char* to, int distanceKM);
 void searchFlightsByDestination();
 void chooseClassAndSeat(FlightNode* chosenFlight);
 void initializeSeatMap(FlightNode* chosenFlight, char* classType);
+int dijkstra(const char* start, const char* end, char path[][10], int* pathLength);
+void searchFlightRoute(char start[], char destination[], char path[][10], int* pathLength);
 
 // ========================== BST FUNCTION DECLARATIONS ==========================
 FlightTreeNode* insertFlightTree(FlightTreeNode* root, Flight flight);
@@ -151,6 +153,49 @@ int isValidTime(const char *time) {
         return 0;
     return 1;
 }
+
+// ===================== TIME HANDLING =====================
+void addHoursToTime(const char* timeStr, int hoursToAdd, char* resultTime) {
+    int hh, mm;
+    sscanf(timeStr, "%2d:%2d", &hh, &mm);
+
+    hh += hoursToAdd;
+    while (hh >= 24) hh -= 24;
+
+    sprintf(resultTime, "%02d:%02d", hh, mm);
+}
+
+int isTimeAfterOrEqual(const char* time1, const char* time2) {
+    int h1, m1, h2, m2;
+    sscanf(time1, "%2d:%2d", &h1, &m1);
+    sscanf(time2, "%2d:%2d", &h2, &m2);
+
+    if (h1 > h2) return 1;
+    if (h1 == h2 && m1 >= m2) return 1;
+    return 0;
+}
+
+// Approximate flight durations (can adjust if needed)
+int getFlightDurationHours(const char* from, const char* to) {
+    if ((strcmp(from, "BKK") == 0 && strcmp(to, "NRT") == 0) ||
+        (strcmp(from, "NRT") == 0 && strcmp(to, "BKK") == 0)) return 6;
+    if ((strcmp(from, "NRT") == 0 && strcmp(to, "YYZ") == 0) ||
+        (strcmp(from, "YYZ") == 0 && strcmp(to, "NRT") == 0)) return 12;
+    if ((strcmp(from, "BKK") == 0 && strcmp(to, "BER") == 0) ||
+        (strcmp(from, "BER") == 0 && strcmp(to, "BKK") == 0)) return 11;
+    if ((strcmp(from, "BER") == 0 && strcmp(to, "YYZ") == 0) ||
+        (strcmp(from, "YYZ") == 0 && strcmp(to, "BER") == 0)) return 9;
+    if ((strcmp(from, "YYZ") == 0 && strcmp(to, "GRU") == 0) ||
+        (strcmp(from, "GRU") == 0 && strcmp(to, "YYZ") == 0)) return 10;
+    if ((strcmp(from, "BKK") == 0 && strcmp(to, "SYD") == 0) ||
+        (strcmp(from, "SYD") == 0 && strcmp(to, "BKK") == 0)) return 9;
+    if ((strcmp(from, "SYD") == 0 && strcmp(to, "GRU") == 0) ||
+        (strcmp(from, "GRU") == 0 && strcmp(to, "SYD") == 0)) return 15;
+    if ((strcmp(from, "BKK") == 0 && strcmp(to, "HKT") == 0) ||
+        (strcmp(from, "HKT") == 0 && strcmp(to, "BKK") == 0)) return 1;
+    return 8; // Default if unknown
+}
+
 
 // ========================== LOAD FUNCTIONS ==========================
 
@@ -413,89 +458,233 @@ void printDestinations(FlightTreeNode* root) {
 
 void searchFlightsByDestination() {
     clearScreen();
-    printf("===================================================================\n");
-    printf("                    SEARCH FLIGHT BY DESTINATION                      \n");
-    printf("===================================================================\n");
 
-    printf("Available Destinations:\n");
-    printDestinations(flightTreeRoot);
-    printf("\n-------------------------------------------------------------------\n");
+    char start[10], destination[10];
+    char path[10][10];
+    int pathLength = 0;
 
-    char destination[10];
+    searchFlightRoute(start, destination, path, &pathLength);
+
+    if (pathLength < 2) {
+        printf("Invalid path. Press Enter to return...");
+        getchar(); getchar();
+        return;
+    }
+
     char travelDate[20];
-
-    printf("Enter Destination Airport Code: ");
-    scanf("%s", destination);
-
-    printf("Enter Travel Date (YYYY-MM-DD): ");
+    printf("\nEnter Travel Date (YYYY-MM-DD): ");
     scanf("%s", travelDate);
+
+    static char lastArrivalTime[10] = "";
+    static int lastFlightSelected = 0;
+
+    for (int i = 0; i < pathLength - 1; i++) {
+        char from[10], to[10];
+        strcpy(from, path[i]);
+        strcpy(to, path[i + 1]);
+
+        clearScreen();
+        printf("===================================================================\n");
+        printf("               BOOKING SEGMENT %d/%d: %s to %s                     \n", i + 1, pathLength - 1, from, to);
+        printf("===================================================================\n");
+
+        FlightTreeNode* result = searchFlightTree(flightTreeRoot, to);
+
+        if (!result) {
+            printf("\nNo flights found to %s.\n", to);
+            printf("Press Enter to return...");
+            getchar(); getchar();
+            return;
+        }
+
+        char expectedArrivalTime[10] = "";
+        if (i > 0 && lastFlightSelected) {
+            int durationHours = getFlightDurationHours(path[i - 1], path[i]);
+            addHoursToTime(lastArrivalTime, durationHours, expectedArrivalTime);
+
+            printf("\nExpected arrival time at %s: %s\n", from, expectedArrivalTime);
+            printf("Only showing flights departing after arrival time...\n");
+        }
+
+        printf("\nAvailable Flights from %s to %s on %s:\n", from, to, travelDate);
+        printf("%-8s %-8s %-8s %-12s %-6s %-10s %-12s\n",
+               "FlightID", "From", "To", "Date", "Time", "PlaneID", "Available");
+        printf("-------------------------------------------------------------------\n");
+
+        FlightNode* f = result->flights;
+        int flightsFound = 0;
+
+        while (f) {
+            if (strcmp(f->data.departure, from) == 0 &&
+                strcmp(f->data.destination, to) == 0 &&
+                strcmp(f->data.flight_date, travelDate) == 0) {
+
+                if (i == 0 || isTimeAfterOrEqual(f->data.flight_time, expectedArrivalTime)) {
+                    printf("%-8d %-8s %-8s %-12s %-6s %-10s %-12d\n",
+                           f->data.flightID, f->data.departure, f->data.destination,
+                           f->data.flight_date, f->data.flight_time,
+                           f->data.airplaneID, f->data.seatsAvailable);
+                    flightsFound++;
+                }
+            }
+            f = f->next;
+        }
+
+        if (flightsFound == 0) {
+            printf("\nNo valid connecting flights found for this segment.\n");
+            printf("Press Enter to return...");
+            getchar(); getchar();
+            return;
+        }
+
+        printf("\nEnter Flight ID to book (0 to cancel): ");
+        int selectedFlightID;
+        scanf("%d", &selectedFlightID);
+
+        if (selectedFlightID == 0) {
+            printf("Booking cancelled. Press Enter to return...");
+            getchar(); getchar();
+            return;
+        }
+
+        // Re-find selected flight
+        f = result->flights;
+        while (f) {
+            if (f->data.flightID == selectedFlightID &&
+                strcmp(f->data.flight_date, travelDate) == 0 &&
+                strcmp(f->data.departure, from) == 0 &&
+                strcmp(f->data.destination, to) == 0) {
+
+                if (i == 0 || isTimeAfterOrEqual(f->data.flight_time, expectedArrivalTime)) {
+                    break;
+                }
+            }
+            f = f->next;
+        }
+
+        if (!f) {
+            printf("Invalid Flight ID or flight time too early. Press Enter to return...");
+            getchar(); getchar();
+            return;
+        }
+
+        // Save departure time for next connection
+        strcpy(lastArrivalTime, f->data.flight_time);
+        lastFlightSelected = 1;
+
+        chooseClassAndSeat(f);  // Book seat for this segment
+    }
+}
+
+// ==================== DIJKSTRA'S ALGORITHM ========================
+
+int dijkstra(const char* start, const char* end, char path[][10], int* pathLength) {
+    int dist[airportCount];
+    int visited[airportCount];
+    int previous[airportCount];
     
+    for (int i = 0; i < airportCount; i++) {
+        dist[i] = 1e9;
+        visited[i] = 0;
+        previous[i] = -1;
+    }
+
+    int startIndex = -1, endIndex = -1;
+    for (int i = 0; i < airportCount; i++) {
+        if (strcmp(airports[i].airportCode, start) == 0) startIndex = i;
+        if (strcmp(airports[i].airportCode, end) == 0) endIndex = i;
+    }
+
+    if (startIndex == -1 || endIndex == -1) {
+        printf("Invalid airport codes.\n");
+        return -1;
+    }
+
+    dist[startIndex] = 0;
+
+    for (int count = 0; count < airportCount - 1; count++) {
+        int minDist = 1e9, u = -1;
+        for (int i = 0; i < airportCount; i++) {
+            if (!visited[i] && dist[i] < minDist) {
+                minDist = dist[i];
+                u = i;
+            }
+        }
+
+        if (u == -1) break;
+
+        visited[u] = 1;
+
+        Connection* conn = airports[u].connections;
+        while (conn) {
+            int v = -1;
+            for (int i = 0; i < airportCount; i++) {
+                if (strcmp(airports[i].airportCode, conn->destinationCode) == 0) {
+                    v = i;
+                    break;
+                }
+            }
+
+            if (v != -1 && dist[u] + conn->distanceKM < dist[v]) {
+                dist[v] = dist[u] + conn->distanceKM;
+                previous[v] = u;
+            }
+            conn = conn->next;
+        }
+    }
+
+    if (dist[endIndex] == 1e9) {
+        printf("No path found.\n");
+        return -1;
+    }
+
+    int temp[airportCount];
+    int len = 0;
+    for (int at = endIndex; at != -1; at = previous[at]) {
+        temp[len++] = at;
+    }
+
+    *pathLength = len;
+    for (int i = 0; i < len; i++) {
+        strcpy(path[i], airports[temp[len - i - 1]].airportCode);
+    }
+
+    return dist[endIndex]; // Return total distance
+}
+
+// ===================== SEARCH FOR FLIGHT =====================
+
+void searchFlightRoute(char start[], char destination[], char path[][10], int* pathLength) {
     clearScreen();
     printf("===================================================================\n");
-    printf("                    SEARCH FLIGHT BY DESTINATION                      \n");
+    printf("                     SELECT ROUTE                                \n");
     printf("===================================================================\n");
+    printf("Available airports: BKK, HKT, SYD, NRT, GRU, BER, YYZ\n");
 
-    FlightTreeNode* result = searchFlightTree(flightTreeRoot, destination);
+    printf("Enter your departure airport (Example: BKK): ");
+    scanf("%s", start);
 
-    if (!result) {
-        printf("\nNo flights found to %s.\n", destination);
-        printf("Press Enter to return...");
+    printf("Enter your destination airport (Example: YYZ): ");
+    scanf("%s", destination);
+
+    printf("\nFinding shortest route...\n");
+
+    int totalDistance = dijkstra(start, destination, path, pathLength);
+    if (totalDistance == -1) {
+        printf("Could not find a path. Returning...\n");
         getchar(); getchar();
         return;
     }
 
-    printf("\nAvailable Flights to %s on %s:\n", destination, travelDate);
-    printf("%-8s %-8s %-8s %-12s %-6s %-10s %-12s\n",
-           "FlightID", "From", "To", "Date", "Time", "PlaneID", "Available");
-    printf("-------------------------------------------------------------------\n");
-
-    FlightNode* f = result->flights;
-    int flightsFound = 0;
-
-    while (f) {
-        if (strcmp(f->data.flight_date, travelDate) == 0) { // Date matches
-            printf("%-8d %-8s %-8s %-12s %-6s %-10s %-12d\n",
-                   f->data.flightID, f->data.departure, f->data.destination,
-                   f->data.flight_date, f->data.flight_time,
-                   f->data.airplaneID, f->data.seatsAvailable);
-            flightsFound++;
-        }
-        f = f->next;
+    printf("\nShortest path: ");
+    for (int i = 0; i < *pathLength; i++) {
+        printf("%s", path[i]);
+        if (i != *pathLength - 1) printf(" -> ");
     }
+    printf("\nTotal Distance: %d km\n", totalDistance);
 
-    if (flightsFound == 0) {
-        printf("\nNo flights found on that date.\n");
-        printf("Press Enter to return...");
-        getchar(); getchar();
-        return;
-    }
-
-    printf("\nEnter Flight ID to book (0 to cancel): ");
-    int selectedFlightID;
-    scanf("%d", &selectedFlightID);
-
-    if (selectedFlightID == 0) {
-        printf("Booking cancelled. Press Enter to return...");
-        getchar(); getchar();
-        return;
-    }
-
-    // Search for the selected flight again
-    f = result->flights;
-    while (f) {
-        if (f->data.flightID == selectedFlightID && strcmp(f->data.flight_date, travelDate) == 0) {
-            break;
-        }
-        f = f->next;
-    }
-
-    if (!f) {
-        printf("Invalid Flight ID. Press Enter to return...");
-        getchar(); getchar();
-        return;
-    }
-
-    chooseClassAndSeat(f);
+    printf("\nPress Enter to continue...");
+    getchar(); getchar();
 }
 
 // ===================== CHOOSE CLASS AND SEAT =====================
