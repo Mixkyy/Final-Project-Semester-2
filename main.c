@@ -45,7 +45,7 @@ typedef struct FlightNode {
     struct FlightNode* next;
 } FlightNode;
 
-// Passenger Struct (You need it too)
+// Passenger Struct
 typedef struct {
     int passengerID;
     char firstName[50];
