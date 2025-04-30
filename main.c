@@ -11,11 +11,11 @@ typedef struct {
     char destination[10];
     char flight_date[20];
     char flight_time[10];
-    char airplaneID[10];           
-    char airplaneModel[50];         
-    int firstClassSeats;           
-    int businessClassSeats;        
-    int economyClassSeats;    
+    char airplaneID[10];
+    char airplaneModel[50];
+    int firstClassSeats;
+    int businessClassSeats;
+    int economyClassSeats;
     float price;
     int capacity;
     int seatsAvailable;
@@ -200,30 +200,73 @@ int getFlightDurationHours(const char* from, const char* to) {
 // ========================== LOAD FUNCTIONS ==========================
 
 void loadFlights() {
+    FlightNode* current = flightHead;
+    while (current) {
+        FlightNode* temp = current;
+        current = current->next;
+        free(temp);
+    }
+    flightHead = NULL;
+    
     FILE *file = fopen("flights.csv", "r");
     if (!file) return;
 
     char line[512];
-    fgets(line, sizeof(line), file); // Skip header
+    fgets(line, sizeof(line), file);
 
     while (fgets(line, sizeof(line), file)) {
         FlightNode* newNode = (FlightNode*)malloc(sizeof(FlightNode));
         sscanf(line, "%d,%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%d,%d,%d,%f,%d,%d",
-               &newNode->data.flightID,
-               newNode->data.departure,
-               newNode->data.destination,
-               newNode->data.flight_date,
-               newNode->data.flight_time,
-               newNode->data.airplaneID,
-               newNode->data.airplaneModel,
-               &newNode->data.firstClassSeats,
-               &newNode->data.businessClassSeats,
-               &newNode->data.economyClassSeats,
-               &newNode->data.price,
-               &newNode->data.capacity,
-               &newNode->data.seatsAvailable);
+            &newNode->data.flightID,
+            newNode->data.departure,
+            newNode->data.destination,
+            newNode->data.flight_date,
+            newNode->data.flight_time,
+            newNode->data.airplaneID,
+            newNode->data.airplaneModel,
+            &newNode->data.firstClassSeats,
+            &newNode->data.businessClassSeats,
+            &newNode->data.economyClassSeats,
+            &newNode->data.price,
+            &newNode->data.capacity,
+            &newNode->data.seatsAvailable);
         newNode->next = flightHead;
         flightHead = newNode;
+    }
+    fclose(file);
+}
+
+void saveFlights() {
+    FILE *file = fopen("flights.csv", "w");
+    if (!file) return;
+
+    fprintf(file, "FlightID,Departure,Destination,Date,Time,AirplaneID,AirplaneModel,FirstClassSeats,BusinessClassSeats,EconomyClassSeats,Price,Capacity,SeatsAvailable\n");
+
+    FlightNode* current = flightHead;
+    while (current) {
+        Flight f = current->data;
+        fprintf(file, "%d,%s,%s,%s,%s,%s,%s,%d,%d,%d,%.2f,%d,%d\n",
+            f.flightID, f.departure, f.destination, f.flight_date, f.flight_time,
+            f.airplaneID, f.airplaneModel, f.firstClassSeats, f.businessClassSeats,
+            f.economyClassSeats, f.price, f.capacity, f.seatsAvailable);
+        current = current->next;
+    }
+    fclose(file);
+}
+
+void loadPlanes(Plane planes[], int* planeCount) {
+    FILE *file = fopen("plane.csv", "r");
+    if (!file) return;
+
+    char line[256];
+    fgets(line, sizeof(line), file);
+
+    while (fgets(line, sizeof(line), file)) {
+        Plane p;
+        sscanf(line, "%[^,],%[^,],%d,%d,%d,%d,%[^,\n]",
+            p.airplaneID, p.model, &p.totalSeats, &p.firstClassSeats,
+            &p.businessClassSeats, &p.economyClassSeats, p.status);
+        planes[(*planeCount)++] = p;
     }
     fclose(file);
 }
@@ -373,6 +416,7 @@ int main() {
     loadPassengers();
     loadAirports();
     buildFlightTree();
+   
 
     do {
         clearScreen();
@@ -897,140 +941,146 @@ void addFlight() {
     printf("                   ADD FLIGHT                     \n");
     printf("==================================================\n");
 
-    Flight f;
-    const char *flightFile = "flights.csv";
-    const char *planeFile = "plane.csv";
     Plane planes[100];
     int planeCount = 0;
+    loadPlanes(planes, &planeCount);
 
-    // Load planes
-    FILE *pf = fopen(planeFile, "r");
-    if (!pf) {
-        printf("Error opening plane file.\n");
-        getchar(); getchar();
-        return;
-    }
+    int availableIndexes[100];
+    int availableCount = 0;
 
-    char line[256];
-    fgets(line, sizeof(line), pf); // Skip header
-
-    while (fgets(line, sizeof(line), pf)) {
-        Plane p;
-        if (sscanf(line, "%[^,],%[^,],%d,%d,%d,%d,%s",
-                   p.airplaneID, p.model, &p.totalSeats, &p.firstClassSeats, &p.businessClassSeats, &p.economyClassSeats, p.status) == 7) {
-            if (strcmp(p.status, "Available") == 0) {
-                planes[planeCount++] = p;
-            }
-        }
-    }
-    fclose(pf);
-
-    if (planeCount == 0) {
-        printf("No available planes found.\n");
-        printf("Press Enter to return...");
-        getchar(); getchar();
-        return;
-    }
-
-    // Show available planes
     printf("%-4s %-12s %-25s %-8s %-10s %-8s\n",
-    "No.", "AirplaneID", "Model", "First", "Business", "Economy");
-    printf("---------------------------------------------------------------------------\n");
+        "No.", "AirplaneID", "Model", "First", "Business", "Economy");
+    printf("--------------------------------------------------------------------------\n");
 
     for (int i = 0; i < planeCount; i++) {
-        printf("%-4d %-12s %-25s %-8d %-10d %-8d\n",
-        i + 1,
-        planes[i].airplaneID,
-        planes[i].model,
-        planes[i].firstClassSeats,
-        planes[i].businessClassSeats,
-        planes[i].economyClassSeats);
+        if (strcmp(planes[i].status, "Available") == 0) {
+            availableIndexes[availableCount] = i;
+            printf("%-4d %-12s %-25s %-8d %-10d %-8d\n",
+                availableCount + 1,
+                planes[i].airplaneID,
+                planes[i].model,
+                planes[i].firstClassSeats,
+                planes[i].businessClassSeats,
+                planes[i].economyClassSeats);
+            availableCount++;
+        }
     }
-    int selected;
-    do {
-        printf("Select an airplane by number (1-%d): ", planeCount);
-        scanf("%d", &selected);
-        if (selected < 1 || selected > planeCount)
-            printf("Invalid selection. Try again.\n");
-    } while (selected < 1 || selected > planeCount);
 
-    Plane chosen = planes[selected - 1];
-
-    printf("Enter Flight ID: ");
-    scanf("%d", &f.flightID);
-
-    printf("Enter Departure Airport (Airport Code): ");
-    scanf("%s", f.departure);
-
-    printf("Enter Destination Airport (Airport Code): ");
-    scanf("%s", f.destination);
-
-    // Validate date
-    do {
-        printf("Enter Date (YYYY-MM-DD): ");
-        scanf("%s", f.flight_date);
-        if (!isValidDate(f.flight_date))
-            printf("Invalid date format or value. Try again.\n");
-    } while (!isValidDate(f.flight_date));
-
-    // Validate time
-    do {
-        printf("Enter Departure Time (HH:MM): ");
-        scanf("%s", f.flight_time);
-        if (!isValidTime(f.flight_time))
-            printf("Invalid time format or value. Try again.\n");
-    } while (!isValidTime(f.flight_time));
-
-    printf("Enter Base Ticket Price: ");
-    do {
-        scanf("%f", &f.price);
-        if (f.price <= 0)
-            printf("Price must be positive. Try again: ");
-    } while (f.price <= 0);
-
-    // Fill airplane data
-    strcpy(f.airplaneID, chosen.airplaneID);
-    strcpy(f.airplaneModel, chosen.model);
-    f.firstClassSeats = chosen.firstClassSeats;
-    f.businessClassSeats = chosen.businessClassSeats;
-    f.economyClassSeats = chosen.economyClassSeats;
-    f.capacity = f.firstClassSeats + f.businessClassSeats + f.economyClassSeats;
-    f.seatsAvailable = f.capacity;
-
-    // Write to flights.csv
-    FILE *ff = fopen(flightFile, "r");
-    int fileExists = (ff != NULL);
-    if (ff) fclose(ff);
-
-    ff = fopen(flightFile, "a");
-    if (!ff) {
-        printf("Error opening flights file.\n");
+    if (availableCount == 0) {
+        printf("\nNo available planes. Cannot add flight. Press Enter...");
         getchar(); getchar();
         return;
     }
 
-    if (!fileExists) {
-        fprintf(ff, "FlightID,Departure,Destination,Date,Time,AirplaneID,AirplaneModel,FirstClassSeats,BusinessClassSeats,EconomyClassSeats,Price,Capacity,SeatsAvailable\n");
+    int choice;
+    printf("\nSelect a plane by number: ");
+    scanf("%d", &choice);
+    if (choice < 1 || choice > availableCount) {
+        printf("Invalid selection. Press Enter...");
+        getchar(); getchar();
+        return;
     }
 
-    fprintf(ff, "%d,%s,%s,%s,%s,%s,%s,%d,%d,%d,%.2f,%d,%d\n",
-            f.flightID, f.departure, f.destination, f.flight_date, f.flight_time,
-            f.airplaneID, f.airplaneModel, f.firstClassSeats, f.businessClassSeats, f.economyClassSeats,
-            f.price, f.capacity, f.seatsAvailable);
+    int selected = availableIndexes[choice-1];
 
-    fclose(ff);
+    FlightNode* newNode = (FlightNode*)malloc(sizeof(FlightNode));
 
-    printf("\nFlight added successfully!\n");
-    printf("Press Enter to return...");
+    printf("Enter Flight ID: ");
+    scanf("%d", &newNode->data.flightID);
+
+    printf("Enter Departure Airport (Code): ");
+    scanf("%s", newNode->data.departure);
+
+    printf("Enter Destination Airport (Code): ");
+    scanf("%s", newNode->data.destination);
+
+    do {
+        printf("Enter Date (YYYY-MM-DD): ");
+        scanf("%s", newNode->data.flight_date);
+        if (!isValidDate(newNode->data.flight_date))
+            printf("Invalid date. Try again.\n");
+    } while (!isValidDate(newNode->data.flight_date));
+
+    do {
+        printf("Enter Time (HH:MM): ");
+        scanf("%s", newNode->data.flight_time);
+        if (!isValidTime(newNode->data.flight_time))
+            printf("Invalid time. Try again.\n");
+    } while (!isValidTime(newNode->data.flight_time));
+
+    strcpy(newNode->data.airplaneID, planes[selected].airplaneID);
+    strcpy(newNode->data.airplaneModel, planes[selected].model);
+    newNode->data.firstClassSeats = planes[selected].firstClassSeats;
+    newNode->data.businessClassSeats = planes[selected].businessClassSeats;
+    newNode->data.economyClassSeats = planes[selected].economyClassSeats;
+    newNode->data.capacity = planes[selected].totalSeats;
+    newNode->data.seatsAvailable = planes[selected].totalSeats;
+
+    printf("Enter Base Ticket Price: ");
+    scanf("%f", &newNode->data.price);
+
+    newNode->next = flightHead;
+    flightHead = newNode;
+
+    saveFlights();
+
+    printf("\nFlight added successfully! Press Enter to continue...");
     getchar(); getchar();
 }
 
 void removeFlight() {
     clearScreen();
     printf("==================================================\n");
-    printf("                 REMOVE FLIGHT                    \n");
+    printf("                  REMOVE FLIGHT                   \n");
     printf("==================================================\n");
-    printf("Press Enter to return...");
+    if (!flightHead) {
+        printf("No flights to remove. Press Enter...");
+        getchar(); getchar();
+        return;
+    }
+    printf("%-8s %-8s %-8s %-12s %-6s %-8s %-20s %-8s %-10s %-10s %-12s %-12s %-12s\n",
+        "FlightID", "From", "To", "Date", "Time", "PlaneID", "Model", "First", "Business", "Economy", "Price", "Capacity", "Available");
+    printf("------------------------------------------------------------------------------------------------------------------------------------------------\n");
+    FlightNode* ptr = flightHead;
+    int editableFound = 0;
+    while (ptr) {
+        if (ptr->data.seatsAvailable == ptr->data.capacity) {
+            editableFound = 1;
+            Flight f = ptr->data;
+            printf("%-8d %-8s %-8s %-12s %-6s %-8s %-20s %-8d %-10d %-10d %-12.2f %-12d %-12d\n",
+                f.flightID, f.departure, f.destination, f.flight_date, f.flight_time,
+                f.airplaneID, f.airplaneModel, f.firstClassSeats, f.businessClassSeats,
+                f.economyClassSeats, f.price, f.capacity, f.seatsAvailable);
+        }
+        ptr = ptr->next;
+    }
+
+    if (!editableFound) {
+        printf("\nNo editable flights found (only fully unbooked flights can be edited). Press Enter...");
+        getchar(); getchar();
+        return;
+    }
+    
+
+    int id;
+    printf("Enter Flight ID to remove: ");
+    scanf("%d", &id);
+
+    FlightNode *current = flightHead, *prev = NULL;
+    while (current) {
+        if (current->data.flightID == id) {
+            if (!prev) flightHead = current->next;
+            else prev->next = current->next;
+            free(current);
+            saveFlights();
+            printf("\nFlight removed successfully! Press Enter...");
+            getchar(); getchar();
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+    printf("\nFlight ID not found. Press Enter...");
     getchar(); getchar();
 }
 
@@ -1039,60 +1089,183 @@ void editFlight() {
     printf("==================================================\n");
     printf("                  EDIT FLIGHT                     \n");
     printf("==================================================\n");
-    printf("Press Enter to return...");
-    getchar(); getchar();
-}
+    if (!flightHead) {
+        printf("No flights available. Press Enter...");
+        getchar(); getchar();
+        return;
+    }
 
+    // Show all flights first
+    printf("%-8s %-8s %-8s %-12s %-6s %-8s %-20s %-8s %-10s %-10s %-12s %-12s %-12s\n",
+        "FlightID", "From", "To", "Date", "Time", "PlaneID", "Model", "First", "Business", "Economy", "Price", "Capacity", "Available");
+    printf("------------------------------------------------------------------------------------------------------------------------------------------------\n");
+    FlightNode* ptr = flightHead;
+    int editableFound = 0;
+    while (ptr) {
+        if (ptr->data.seatsAvailable == ptr->data.capacity) {
+            editableFound = 1;
+            Flight f = ptr->data;
+            printf("%-8d %-8s %-8s %-12s %-6s %-8s %-20s %-8d %-10d %-10d %-12.2f %-12d %-12d\n",
+                f.flightID, f.departure, f.destination, f.flight_date, f.flight_time,
+                f.airplaneID, f.airplaneModel, f.firstClassSeats, f.businessClassSeats,
+                f.economyClassSeats, f.price, f.capacity, f.seatsAvailable);
+        }
+        ptr = ptr->next;
+    }
+
+    if (!editableFound) {
+        printf("\nNo editable flights found (only fully unbooked flights can be edited). Press Enter...");
+        getchar(); getchar();
+        return;
+    }
+
+    int id;
+    printf("\nEnter Flight ID to edit: ");
+    scanf("%d", &id);
+    getchar(); // Clear newline left by scanf
+
+    FlightNode* current = flightHead;
+    while (current) {
+        if (current->data.flightID == id) {
+            clearScreen();
+            printf("==================================================\n");
+            printf("              EDITING SELECTED FLIGHT             \n");
+            printf("==================================================\n");
+                
+                printf("%-8s %-8s %-8s %-12s %-6s %-8s %-20s %-8s %-10s %-10s %-12s %-12s %-12s\n",
+                    "FlightID", "From", "To", "Date", "Time", "PlaneID", "Model", "First", "Business", "Economy", "Price", "Capacity", "Available");
+                printf("-----------------------------------------------------------------------------------------------------------------------------------\n");
+            
+                FlightNode* current = flightHead;
+                    Flight f = current->data;
+                    printf("%-8d %-8s %-8s %-12s %-6s %-8s %-20s %-8d %-10d %-10d %-12.2f %-12d %-12d\n",
+                        f.flightID, f.departure, f.destination, f.flight_date, f.flight_time,
+                        f.airplaneID, f.airplaneModel, f.firstClassSeats, f.businessClassSeats,
+                        f.economyClassSeats, f.price, f.capacity, f.seatsAvailable);
+      
+            
+                char input[100];
+
+                // Change Destination
+                printf("Enter new Destination or press Enter to keep [%s]: ", current->data.destination);
+                fgets(input, sizeof(input), stdin);
+                if (input[0] != '\n') {
+                    input[strcspn(input, "\n")] = 0;
+                    if (strlen(input) > 0) strcpy(current->data.destination, input);
+                }
+    
+                // Change Airplane
+                Plane planes[100];
+                int planeCount = 0;
+                loadPlanes(planes, &planeCount);
+    
+                printf("\n%-4s %-12s %-25s %-8s %-10s %-8s\n", "No.", "AirplaneID", "Model", "First", "Business", "Economy");
+                printf("-------------------------------------------------------------------------------\n");
+                for (int i = 0; i < planeCount; i++) {
+                    if (strcmp(planes[i].status, "Available") == 0) {
+                        printf("%-4d %-12s %-25s %-8d %-10d %-8d\n",
+                            i + 1, planes[i].airplaneID, planes[i].model,
+                            planes[i].firstClassSeats, planes[i].businessClassSeats, planes[i].economyClassSeats);
+                    }
+                }
+                int planeChoice;
+                printf("\nSelect new plane number or press 0 to keep current: ");
+                scanf("%d", &planeChoice);
+                getchar();
+                if (planeChoice > 0 && planeChoice <= planeCount && strcmp(planes[planeChoice - 1].status, "Available") == 0) {
+                    Plane chosen = planes[planeChoice - 1];
+                    strcpy(current->data.airplaneID, chosen.airplaneID);
+                    strcpy(current->data.airplaneModel, chosen.model);
+                    current->data.firstClassSeats = chosen.firstClassSeats;
+                    current->data.businessClassSeats = chosen.businessClassSeats;
+                    current->data.economyClassSeats = chosen.economyClassSeats;
+                    current->data.capacity = chosen.totalSeats;
+                    current->data.seatsAvailable = chosen.totalSeats; // reset availability
+                }
+    
+                getchar(); // flush
+                // Edit date
+                do {
+                    printf("\nEnter new Date (YYYY-MM-DD) or press Enter to keep [%s]: ", current->data.flight_date);
+                    fgets(input, sizeof(input), stdin);
+                    if (input[0] != '\n') {
+                        input[strcspn(input, "\n")] = 0;
+                        if (isValidDate(input)) {
+                            strcpy(current->data.flight_date, input);
+                            break;
+                        } else {
+                            printf("Invalid date. Try again.\n");
+                        }
+                    } else {
+                        break;
+                    }
+                } while (1);
+    
+                // Edit time
+                do {
+                    printf("Enter new Time (HH:MM) or press Enter to keep [%s]: ", current->data.flight_time);
+                    fgets(input, sizeof(input), stdin);
+                    if (input[0] != '\n') {
+                        input[strcspn(input, "\n")] = 0;
+                        if (isValidTime(input)) {
+                            strcpy(current->data.flight_time, input);
+                            break;
+                        } else {
+                            printf("Invalid time. Try again.\n");
+                        }
+                    } else {
+                        break;
+                    }
+                } while (1);
+    
+                // Edit price
+                printf("Enter new Price or press Enter to keep [%.2f]: ", current->data.price);
+                fgets(input, sizeof(input), stdin);
+                if (input[0] != '\n') {
+                    float newPrice = atof(input);
+                    if (newPrice > 0) current->data.price = newPrice;
+                }
+    
+                saveFlights();
+                printf("\nFlight updated successfully. Press Enter...");
+                getchar();
+                return;
+            }
+            current = current->next;
+        }
+    
+        printf("Flight ID not found. Press Enter...");
+        getchar(); getchar();
+}
 void viewFlights() {
     clearScreen();
     printf("==================================================\n");
     printf("                   VIEW FLIGHTS                   \n");
     printf("==================================================\n");
 
-    FILE *file = fopen("flights.csv", "r");
-    if (!file) {
-        printf("No flight data found. Press Enter to return...");
+    if (!flightHead) {
+        printf("No flights available. Press Enter...");
         getchar(); getchar();
         return;
     }
 
-    char line[512];
-    int count = 0;
-
-    // Skip header line
-    fgets(line, sizeof(line), file);
-
-    // Print nice header
     printf("%-8s %-8s %-8s %-12s %-6s %-8s %-20s %-8s %-10s %-10s %-12s %-12s %-12s\n",
         "FlightID", "From", "To", "Date", "Time", "PlaneID", "Model", "First", "Business", "Economy", "Price", "Capacity", "Available");
-    
-    printf("------------------------------------------------------------------------------------------------------------------------------------------------\n");
+        printf("------------------------------------------------------------------------------------------------------------------------------------------------\n");
 
-    while (fgets(line, sizeof(line), file)) {
-        int flightID, firstClass, businessClass, economyClass, capacity, available;
-        float price;
-        char from[10], to[10], date[20], time[10], airplaneID[10], airplaneModel[50];
-
-        if (sscanf(line, "%d,%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%d,%d,%d,%f,%d,%d",
-                   &flightID, from, to, date, time, airplaneID, airplaneModel,
-                   &firstClass, &businessClass, &economyClass, &price, &capacity, &available) == 13) {
-                    printf("%-8d %-8s %-8s %-12s %-6s %-8s %-20s %-8d %-10d %-10d %-12.2f %-12d %-12d\n",
-                        flightID, from, to, date, time, airplaneID, airplaneModel,
-                        firstClass, businessClass, economyClass, price, capacity, available);
-                    
-            count++;
-        }
+    FlightNode* current = flightHead;
+    while (current) {
+        Flight f = current->data;
+        printf("%-8d %-8s %-8s %-12s %-6s %-8s %-20s %-8d %-10d %-10d %-12.2f %-12d %-12d\n",
+            f.flightID, f.departure, f.destination, f.flight_date, f.flight_time,
+            f.airplaneID, f.airplaneModel, f.firstClassSeats, f.businessClassSeats,
+            f.economyClassSeats, f.price, f.capacity, f.seatsAvailable);
+        current = current->next;
     }
-
-    fclose(file);
-
-    if (count == 0) {
-        printf("No flights available.\n");
-    }
-
     printf("\nPress Enter to return...");
     getchar(); getchar();
 }
+
 
 
 // ===================== PASSENGER FUNCTIONS =====================
