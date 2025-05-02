@@ -1,0 +1,1 @@
+isplayPaymentSummary(p, chosenFlight->data.price);
