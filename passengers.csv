@@ -1,2 +1,4 @@
-Passenger ID,First Name,Last Name,Gender,Date of Birth,Passport Number,Nationality,Phone Number,Email Address,Seat Number,Flight ID,Class Type,Special Requests,Booking Date
-1,Korapin,Manoprasertkoon,F,2005-07-17,1001,Thai,0819193322,baitoey.her@gmail.com,F15,12345,Economy,-,2025-04-26
+Passenger ID,First Name,Last Name,Gender,Date of Birth,Passport Number,Nationality,Phone Number,Email Address,Seat Number,Flight ID,Class Type,Special Requests,Booking Date,LuggageSize,MealPreference,WifiPreference,SpecialAssistance
+1,Korapin,Manoprasertkoon,F,2005-07-17,1001,Thai,0819193322,baitoey.her@gmail.com,F15,12345,Economy,-,2025-04-26,Medium,Standard,Yes,None
+2,Panyakorn,Lohaviboonsap,M,2006-06-08,1002,Thai,0818888888,panyakorn.loha@kmutt.ac.th,F15,1004,Economy,,2025-04-30,medium,standard,yes,
+3,asdf,asdf,t,2025-02-01,234,Thai,10412093213,dflskgjg,E19,1004,Economy,-,2025-05-02,carry-on,vegan,no,
