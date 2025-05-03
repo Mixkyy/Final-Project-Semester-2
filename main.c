@@ -31,12 +31,6 @@ typedef struct {
     char status[20]; 
 } Plane;
 
-typedef struct {
-    int row;
-    char column;
-    int occupied;
-} Seat;
-
 // ========================== DATA STRUCTURES ==========================
 
 // Node for Flight Linked List
@@ -61,6 +55,11 @@ typedef struct {
     char classType[20];
     char specialRequest[100];
     char bookingDate[20];
+    char luggageSize[20];         
+    char mealPreference[20];      
+    char wifiPreference[10];
+    char specialAssistance[100];  
+
 } Passenger;
 
 // Node for Passenger Linked List
@@ -95,9 +94,6 @@ typedef struct FlightTreeNode {
 
 
 // ===================== FUNCTION DECLARATIONS =====================
-void ViewHistoryMenu();
-int loginWithNameAndEmail(const char* firstName, const char* email, char* currentUser);
-void viewHistory(char* currentUser);
 void clearScreen();
 void customerMenu();
 void ownerMenu();
@@ -118,6 +114,14 @@ int dijkstra(const char* start, const char* end, char path[][10], int* pathLengt
 void searchFlightRoute(char start[], char destination[], char path[][10], int* pathLength);
 void viewHistory(char *currentUser);
 
+// ========================== ADDITIONAL SERVICE PRICES ==========================
+
+    #define WIFI_FEE 150
+    #define LUGGAGE_MEDIUM_FEE 300
+    #define LUGGAGE_LARGE_FEE 500
+    #define MEAL_VEGAN_FEE 100
+    #define MEAL_HALAL_FEE 100
+
 // ========================== BST FUNCTION DECLARATIONS ==========================
 FlightTreeNode* insertFlightTree(FlightTreeNode* root, Flight flight);
 void buildFlightTree();
@@ -129,13 +133,14 @@ PassengerNode* passengerHead = NULL;
 Airport airports[10];
 int airportCount = 0;
 FlightTreeNode* flightTreeRoot = NULL;
+int latestPassengerID = 0;
 
 // ===================== DATE AND TIME CHECKER  =====================
 int isValidDate(const char *date) {
     int y, m, d;
     if (sscanf(date, "%4d-%2d-%2d", &y, &m, &d) != 3)
         return 0;
-    if (y < 2024 || m < 1 || m > 12 || d < 1 || d > 31)
+    if (y < 1900 || m < 1 || m > 12 || d < 1 || d > 31)
         return 0;
 
     // Days per month check
@@ -284,23 +289,32 @@ void loadPassengers() {
 
     while (fgets(line, sizeof(line), file)) {
         PassengerNode* newNode = (PassengerNode*)malloc(sizeof(PassengerNode));
-        sscanf(line, "%d,%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%d,%[^,],%[^,],%[^\\n]",
-               &newNode->data.passengerID,
-               newNode->data.firstName,
-               newNode->data.lastName,
-               newNode->data.gender,
-               newNode->data.dob,
-               newNode->data.passportNumber,
-               newNode->data.nationality,
-               newNode->data.phoneNumber,
-               newNode->data.email,
-               newNode->data.seatNumber,
-               &newNode->data.flightID,
-               newNode->data.classType,
-               newNode->data.specialRequest,
-               newNode->data.bookingDate);
-        newNode->next = passengerHead;
-        passengerHead = newNode;
+        sscanf(line, "%d,%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%d,%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^\n]",
+            &newNode->data.passengerID,
+            newNode->data.firstName,
+            newNode->data.lastName,
+            newNode->data.gender,
+            newNode->data.dob,
+            newNode->data.passportNumber,
+            newNode->data.nationality,
+            newNode->data.phoneNumber,
+            newNode->data.email,
+            newNode->data.seatNumber,
+            &newNode->data.flightID,
+            newNode->data.classType,
+            newNode->data.specialRequest,
+            newNode->data.bookingDate,
+            newNode->data.luggageSize,
+            newNode->data.mealPreference,
+            newNode->data.wifiPreference,
+            newNode->data.specialAssistance);
+
+            if (newNode->data.passengerID > latestPassengerID) {
+                latestPassengerID = newNode->data.passengerID;
+            }                    
+
+            newNode->next = passengerHead;
+            passengerHead = newNode;
     }
     fclose(file);
 }
@@ -361,26 +375,6 @@ void loadAirports() {
     addConnection("YYZ", "BER", 6300);
 }
 
-void ViewHistoryMenu(){
-    char cuntUser[100] = "Guest";
-    printf("ViewHistoryMenu called\n");
-    char name[50], email[100];
-    printf("Enter your first name: ");
-    scanf("%s", name);
-    printf("Enter your email: ");
-    scanf("%s", email);
-
-    while (getchar() != '\n');
-
-    // เช็คข้อมูล username และ email ถ้าถูกต้อง ให้เรียกดู history
-    if (loginWithNameAndEmail(name, email, cuntUser)) {
-        viewHistory(cuntUser);  // แสดงประวัติของ user ที่ log in
-    } else {
-        printf("Login failed.\n");
-    }
-}
-
-
 int loginWithNameAndEmail(const char *firstName, const char *email, char *cuntUser) {
     snprintf(cuntUser, 100, "%s|%s", firstName, email);
     return 1;
@@ -395,7 +389,7 @@ int loginWithNameAndEmail(const char *firstName, const char *email, char *cuntUs
 
     while (fgets(line, sizeof(line), fp)) {
         lineNumber++;
-        if (lineNumber == 1) continue; // ข้าม header
+        if (lineNumber == 1) continue; 
 
         char fName[50], mail[100];
         sscanf(line, "%*[^,],%49[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%99[^,],", fName, mail);
@@ -411,7 +405,31 @@ int loginWithNameAndEmail(const char *firstName, const char *email, char *cuntUs
     return 0;
 }
 
+void ViewHistoryMenu(){
+    clearScreen();
+    printf("===================================================================\n");
+    printf("                          View History                             \n");
+    printf("===================================================================\n");
+
+    char cuntUser[100] = "Guest";
+    char name[50], email[100];
+    printf("Enter your first name: ");
+    scanf("%s", name);
+    printf("Enter your email: ");
+    scanf("%s", email);
+
+    while (getchar() != '\n');
+
+    if (loginWithNameAndEmail(name, email, cuntUser)) {
+        viewHistory(cuntUser);  
+    } else {
+        printf("Login failed.\n");
+    }
+}
+
 void viewHistory(char *currentUser) {
+    clearScreen();
+
     printf("User: %s\n", currentUser);
     FILE *fp = fopen("history.txt", "r");
     if (fp == NULL) {
@@ -420,18 +438,19 @@ void viewHistory(char *currentUser) {
     }
 
     char line[256];
-    printf("======= View History =======\n");
+    printf("===================================================================\n");
+    printf("                          View History                             \n");
+    printf("===================================================================\n");
     while (fgets(line, sizeof(line), fp)) {
         if (strstr(line, currentUser) == NULL) continue;
         printf("%s", line);
     }
-    printf("============================\n");
     fclose(fp);
-
-    printf("Press SPACEBAR to return to menu...");
-    while (getchar() != ' ');
+    
+    printf("===================================================================\n");
+    printf("Press ENTER to return to menu...");
+    while (getchar() != '\n');
 }
-
 
 // ========================== BST FUNCTIONS ==========================
 
@@ -492,6 +511,7 @@ int main() {
     loadPassengers();
     loadAirports();
     buildFlightTree();
+   
 
     do {
         clearScreen();
@@ -547,7 +567,6 @@ void customerMenu() {
         printf("Enter your choice: ");
         scanf("%d", &choice);
         while (getchar() != '\n'); // Clear buffer after scanf
-
         switch (choice) {
             case 1:
                 searchFlightsByDestination();
@@ -591,8 +610,13 @@ void searchFlightsByDestination() {
     }
 
     char travelDate[20];
-    printf("\nEnter Travel Date (YYYY-MM-DD): ");
-    scanf("%s", travelDate);
+    do {
+        printf("\nEnter Travel Date (YYYY-MM-DD): ");
+        scanf("%s", travelDate);
+        if (!isValidDate(travelDate)) {
+            printf("Invalid date format. Please try again.\n");
+        }
+    } while (!isValidDate(travelDate));
 
     static char lastArrivalTime[10] = "";
     static int lastFlightSelected = 0;
@@ -855,10 +879,61 @@ void chooseClassAndSeat(FlightNode* chosenFlight) {
             return;
     }
 
-    seatRows = (totalSeats + seatsPerRow - 1) / seatsPerRow; // Calculate number of rows
+    seatRows = (totalSeats + seatsPerRow - 1) / seatsPerRow; 
 
     initializeSeatMap(chosenFlight, classType);
 }
+
+// ========= CHECK FOR OCCUPIED SEAT ==========
+
+int isSeatOccupied(int flightID, const char* classType, const char* seat) {
+    PassengerNode* p = passengerHead;
+    while (p) {
+        if (p->data.flightID == flightID &&
+            strcmp(p->data.classType, classType) == 0 &&
+            strcmp(p->data.seatNumber, seat) == 0) {
+            return 1;  
+        }
+        p = p->next;
+    }
+    return 0;  
+}
+
+// ====================== PAYMENT SUMMARY FUNCTION ==============================
+
+void displayPaymentSummary(Passenger p, Flight f) {
+    float base = f.price;
+    float wifiFee = (strcmp(p.wifiPreference, "yes") == 0) ? WIFI_FEE : 0;
+    
+    float luggageFee = 0;
+    if (strcmp(p.luggageSize, "medium") == 0) luggageFee = LUGGAGE_MEDIUM_FEE;
+    else if (strcmp(p.luggageSize, "large") == 0) luggageFee = LUGGAGE_LARGE_FEE;
+
+    float mealFee = 0;
+    if (strcmp(p.mealPreference, "vegan") == 0) mealFee = MEAL_VEGAN_FEE;
+    else if (strcmp(p.mealPreference, "halal") == 0) mealFee = MEAL_HALAL_FEE;
+
+    float total = base + wifiFee + luggageFee + mealFee;
+
+    printf("\n===================================================\n");
+    printf("                  PAYMENT SUMMARY\n");
+    printf("===================================================\n");
+    printf("Passenger: %s %s\n", p.firstName, p.lastName);
+    printf("Flight: %s -> %s (Flight ID: %d)\n", f.departure, f.destination, f.flightID);
+    printf("Class: %s | Seat: %s\n", p.classType, p.seatNumber);
+
+    printf("\nBase Price:           %8.2f\n", base);
+    if (wifiFee > 0)        printf("WiFi:                 +%7.2f\n", wifiFee);
+    if (luggageFee > 0)     printf("Luggage (%s):     +%7.2f\n", p.luggageSize, luggageFee);
+    if (mealFee > 0)        printf("Meal (%s):        +%7.2f\n", p.mealPreference, mealFee);
+
+    printf("---------------------------------\n");
+    printf("Total:                %8.2f\n", total);
+    printf("\nConfirm Payment? (Y/N): ");
+}
+
+
+// ==================== INITIALIZE SEAT MAP ==============================
 
 void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
     clearScreen();
@@ -866,11 +941,10 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
     printf("                      SEAT MAP - %s CLASS                           \n", classType);
     printf("===================================================================\n");
 
-
     int totalSeats = 0;
     int seatsPerRow = 0;
     int startRow = 1;
-    char seatColumns[10]; // Max 10 columns like A-I
+    char seatColumns[10]; 
 
     if (strcmp(classType, "First") == 0) {
         totalSeats = chosenFlight->data.firstClassSeats;
@@ -878,46 +952,202 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
         strcpy(seatColumns, "ABCD");
     } else if (strcmp(classType, "Business") == 0) {
         totalSeats = chosenFlight->data.businessClassSeats;
-        seatsPerRow = 4; // assuming 2-2-2 layout
+        seatsPerRow = 4;
         strcpy(seatColumns, "ABCD");
     } else if (strcmp(classType, "Economy") == 0) {
         totalSeats = chosenFlight->data.economyClassSeats;
-        seatsPerRow = 9; // 3-3-3 layout
+        seatsPerRow = 9;
         strcpy(seatColumns, "ABCDEFGHI");
     }
 
     int rows = (totalSeats + seatsPerRow - 1) / seatsPerRow;
     int seatIndex = 0;
 
-    // Print column headers
-        printf("\n    "); // Start some margin before the seat columns
-        for (int i = 0; seatColumns[i] != '\0'; i++) {
-            printf(" [%c] ", seatColumns[i]); // Print letter inside [ ] box spacing
-            if (strcmp(classType, "Economy") == 0 && (i + 1) % 3 == 0 && seatColumns[i+1] != '\0') {
-                printf("    "); // Extra aisle space only for economy
-            }
+    printf("\n    ");
+    for (int i = 0; seatColumns[i] != '\0'; i++) {
+        printf(" [%c] ", seatColumns[i]);
+        if (strcmp(classType, "Economy") == 0 && (i + 1) % 3 == 0 && seatColumns[i + 1] != '\0') {
+            printf("    ");
         }
-        printf("\n-------------------------------------------------------------------\n");
-    // Print rows and seats
+    }
+    printf("\n-------------------------------------------------------------------\n");
+
     for (int r = startRow; r < startRow + rows; r++) {
         printf("%-4d", r);
         for (int c = 0; seatColumns[c] != '\0'; c++) {
             if (seatIndex < totalSeats) {
-                // Here you would check if the seat is booked (for now assume all available)
-                printf(" [ ] ");
+                char seat[10];
+                sprintf(seat, "%c%d", seatColumns[c], r);
+                if (isSeatOccupied(chosenFlight->data.flightID, classType, seat)) {
+                    printf(" [X] ");
+                } else {
+                    printf(" [ ] ");
+                }
                 seatIndex++;
             } else {
                 printf("     ");
             }
-            if (strcmp(classType, "Economy") == 0 && (c + 1) % 3 == 0 && seatColumns[c+1] != '\0') {
-                printf("   "); // Add aisle space only in Economy
+    
+            if (strcmp(classType, "Economy") == 0 && (c + 1) % 3 == 0 && seatColumns[c + 1] != '\0') {
+                printf("   ");
             }
         }
         printf("\n");
     }
+    
+    Passenger p;
 
-    printf("\nPress Enter to continue...");
-    getchar(); getchar();
+    printf("\nEnter your first name: ");
+    scanf("%s", p.firstName);
+    while (getchar() != '\n');
+
+    printf("Enter your last name: ");
+    scanf("%s", p.lastName);
+    while (getchar() != '\n');
+
+    do {
+        printf("Enter your gender (M/F): ");
+        scanf("%s", p.gender);
+        while (getchar() != '\n');
+
+        p.gender[0] = toupper(p.gender[0]);
+        p.gender[1] = '\0';
+
+        if (strcmp(p.gender, "M") != 0 && strcmp(p.gender, "F") != 0) {
+            printf("Invalid gender. Please enter 'M' or 'F'.\n");
+        }
+    } while (strcmp(p.gender, "M") != 0 && strcmp(p.gender, "F") != 0);
+
+    do {
+        printf("Enter your date of birth (YYYY-MM-DD): ");
+        scanf("%s", p.dob);
+        if (!isValidDate(p.dob)) {
+            printf("Invalid date format. Please follow YYYY-MM-DD.\n");
+        }
+    } while (!isValidDate(p.dob));
+
+    printf("Enter your passport number: ");
+    scanf("%s", p.passportNumber);
+    while (getchar() != '\n');
+
+    printf("Enter your nationality: ");
+    scanf("%s", p.nationality);
+    while (getchar() != '\n');
+
+    printf("Enter your phone number: ");
+    scanf("%s", p.phoneNumber);
+    while (getchar() != '\n');
+
+    printf("Enter your email address: ");
+    scanf("%s", p.email);
+    while (getchar() != '\n');
+
+    int validSeat = 0;
+    do {
+        printf("Enter your desired seat number (e.g., A1, B3): ");
+        scanf("%s", p.seatNumber);
+
+        char column;
+        int row;
+        if (sscanf(p.seatNumber, "%c%d", &column, &row) != 2) {
+            printf("Invalid format. Use format like A1, B2, etc.\n");
+            continue;
+        }
+
+        column = toupper(column);
+        if (strchr(seatColumns, column) == NULL) {
+            printf("Invalid seat column '%c'. Must be one of [%s].\n", column, seatColumns);
+            continue;
+        }
+
+        int maxRow = (totalSeats + seatsPerRow - 1) / seatsPerRow;
+        if (row < 1 || row > maxRow) {
+            printf("Invalid seat row '%d'. Must be between 1 and %d.\n", row, maxRow);
+            continue;
+        }
+
+        if (isSeatOccupied(chosenFlight->data.flightID, classType, p.seatNumber)) {
+            printf("Seat %s is already occupied. Please choose another seat.\n", p.seatNumber);
+        } else {
+            validSeat = 1;
+        }
+    } while (!validSeat);
+
+    do {
+        printf("Enter your luggage size (carry-on, medium, large): ");
+        scanf("%s", p.luggageSize);
+        if (strcmp(p.luggageSize, "carry-on") != 0 && strcmp(p.luggageSize, "medium") != 0 && strcmp(p.luggageSize, "large") != 0) {
+            printf("Invalid size. Choose from carry-on, medium, large.\n");
+        }
+    } while (strcmp(p.luggageSize, "carry-on") != 0 && strcmp(p.luggageSize, "medium") != 0 && strcmp(p.luggageSize, "large") != 0);
+
+    do {
+        printf("Enter your meal preference (standard, vegan, halal): ");
+        scanf("%s", p.mealPreference);
+        if (strcmp(p.mealPreference, "standard") != 0 && strcmp(p.mealPreference, "vegan") != 0 && strcmp(p.mealPreference, "halal") != 0) {
+            printf("Invalid option. Choose from standard, vegan, halal.\n");
+        }
+    } while (strcmp(p.mealPreference, "standard") != 0 && strcmp(p.mealPreference, "vegan") != 0 && strcmp(p.mealPreference, "halal") != 0);
+
+    do {
+        printf("Do you want wifi on this flight? (yes/no): ");
+        scanf("%s", p.wifiPreference);
+        if (strcmp(p.wifiPreference, "yes") != 0 && strcmp(p.wifiPreference, "no") != 0) {
+            printf("Please enter 'yes' or 'no'.\n");
+        }
+    } while (strcmp(p.wifiPreference, "yes") != 0 && strcmp(p.wifiPreference, "no") != 0);
+
+    printf("Any special assistance needed? (press Enter to skip): ");
+    getchar();
+    fgets(p.specialAssistance, sizeof(p.specialAssistance), stdin);
+    size_t len = strlen(p.specialAssistance);
+    if (len > 0 && p.specialAssistance[len - 1] == '\n') {
+        p.specialAssistance[len - 1] = '\0';
+    }
+
+    latestPassengerID++;
+    p.passengerID = latestPassengerID;
+    strcpy(p.classType, classType);
+    p.flightID = chosenFlight->data.flightID;
+
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    strftime(p.bookingDate, sizeof(p.bookingDate), "%Y-%m-%d", t);
+
+    strcpy(p.specialRequest, "-");
+
+    displayPaymentSummary(p, chosenFlight->data);
+
+    char confirm;
+    scanf(" %c", &confirm);
+    if (tolower(confirm) != 'y') {
+        printf("Payment cancelled. Press Enter to return...");
+        getchar(); getchar();
+        return;
+    }
+    
+    FILE *pf = fopen("passengers.csv", "a");
+    if (pf) {
+        fprintf(pf, "%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%s,%s,%s,%s\n",
+            p.passengerID, p.firstName, p.lastName, p.gender, p.dob, p.passportNumber,
+            p.nationality, p.phoneNumber, p.email, p.seatNumber,
+            p.flightID, p.classType, p.specialRequest, p.bookingDate,
+            p.luggageSize, p.mealPreference, p.wifiPreference, p.specialAssistance);
+
+            // Log to history.txt
+    FILE *hf = fopen("history.txt", "a");
+    if (hf) {
+        fprintf(hf, "%s|%s booked FlightID %d Seat %s Class %s on %s\n",
+            p.firstName, p.email, p.flightID, p.seatNumber, p.classType, p.bookingDate);    
+         fclose(hf);
+}
+
+
+        fclose(pf);
+        printf("\nBooking successful! Your Passenger ID is %d\n", p.passengerID);
+    } else {
+        printf("Error: Could not open passengers.csv for writing.\n");
+    }
 }
 
 // ===================== OWNER MENU =====================
@@ -1379,16 +1609,3 @@ void viewPassengers() {
     printf("Press Enter to return...");
     getchar(); getchar();
 }
-
-char currentUser[100] = "Guest";
-
-void logHistory(const char *action) {
-    FILE *fp = fopen("history.txt", "a");
-    if (fp == NULL) {
-        printf("Cannot open history.txt\n");
-        return;
-    }
-    fprintf(fp, "%s|%s\n", currentUser, action);
-    fclose(fp);
-}
-
