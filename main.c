@@ -533,8 +533,13 @@ void searchFlightsByDestination() {
     }
 
     char travelDate[20];
-    printf("\nEnter Travel Date (YYYY-MM-DD): ");
-    scanf("%s", travelDate);
+    do {
+        printf("\nEnter Travel Date (YYYY-MM-DD): ");
+        scanf("%s", travelDate);
+        if (!isValidDate(travelDate)) {
+            printf("Invalid date format. Please try again.\n");
+        }
+    } while (!isValidDate(travelDate));
 
     static char lastArrivalTime[10] = "";
     static int lastFlightSelected = 0;
