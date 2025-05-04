@@ -892,11 +892,11 @@ int isSeatOccupied(int flightID, const char* classType, const char* seat) {
         if (p->data.flightID == flightID &&
             strcmp(p->data.classType, classType) == 0 &&
             strcmp(p->data.seatNumber, seat) == 0) {
-            return 1;  
+            return 1;
         }
         p = p->next;
     }
-    return 0;  
+    return 0;
 }
 
 // ====================== PAYMENT SUMMARY FUNCTION ==============================
@@ -1145,6 +1145,7 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
 
         fclose(pf);
         printf("\nBooking successful! Your Passenger ID is %d\n", p.passengerID);
+
     } else {
         printf("Error: Could not open passengers.csv for writing.\n");
     }
@@ -1579,9 +1580,47 @@ void addPassenger() {
     printf("==================================================\n");
     printf("                 ADD PASSENGER                    \n");
     printf("==================================================\n");
-    printf("Press Enter to return...");
-    getchar(); getchar();
+ 
+    FlightNode* ptr = flightHead;
+    int count = 0;
+    printf("%-4s %-10s %-8s %-8s %-12s %-6s %-10s %-12s\n", "No", "FlightID", "From", "To", "Date", "Time", "PlaneID", "Available");
+    printf("-------------------------------------------------------------------------------\n");
+    while (ptr) {
+        printf("%-4d %-10d %-8s %-8s %-12s %-6s %-10s %-12d\n",
+            count + 1, ptr->data.flightID, ptr->data.departure,
+            ptr->data.destination, ptr->data.flight_date,
+            ptr->data.flight_time, ptr->data.airplaneID, ptr->data.seatsAvailable);
+        ptr = ptr->next;
+        count++;
+    }
+
+    if (count == 0) {
+        printf("No flights available. Press Enter...");
+        getchar(); getchar();
+        return;
+    }
+
+    int choice;
+    printf("\nSelect a flight by number (1-%d): ", count);
+    scanf("%d", &choice);
+    getchar();
+
+    if (choice < 1 || choice > count) {
+        printf("Invalid flight selection. Press Enter...");
+        getchar(); getchar();
+        return;
+    }
+
+    // Get selected flight
+    FlightNode* selected = flightHead;
+    for (int i = 1; i < choice; i++) selected = selected->next;
+
+    // Reuse booking UI and seat map logic
+    chooseClassAndSeat(selected);
+
 }
+
+
 
 void removePassenger() {
     clearScreen();
