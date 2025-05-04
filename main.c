@@ -59,6 +59,7 @@ typedef struct {
     char mealPreference[20];      
     char wifiPreference[10];
     char specialAssistance[100];  
+    float price;
 
 } Passenger;
 
@@ -112,7 +113,7 @@ void chooseClassAndSeat(FlightNode* chosenFlight);
 void initializeSeatMap(FlightNode* chosenFlight, char* classType);
 int dijkstra(const char* start, const char* end, char path[][10], int* pathLength);
 void searchFlightRoute(char start[], char destination[], char path[][10], int* pathLength);
-void viewHistory(char *currentUser);
+void viewHistory(const char *email);
 
 // ========================== ADDITIONAL SERVICE PRICES ==========================
 
@@ -375,12 +376,10 @@ void loadAirports() {
     addConnection("YYZ", "BER", 6300);
 }
 
-int loginWithNameAndEmail(const char *firstName, const char *email, char *cuntUser) {
-    snprintf(cuntUser, 100, "%s|%s", firstName, email);
-    return 1;
+int loginWithEmail(const char *email, char *cuntUser) {
     FILE *fp = fopen("passengers.csv", "r");
     if (fp == NULL) {
-        printf("Error: cannot open passengers.csv\n");
+        printf("Error: Cannot open passengers.csv\n");
         return 0;
     }
 
@@ -389,13 +388,13 @@ int loginWithNameAndEmail(const char *firstName, const char *email, char *cuntUs
 
     while (fgets(line, sizeof(line), fp)) {
         lineNumber++;
-        if (lineNumber == 1) continue; 
+        if (lineNumber == 1) continue;
 
         char fName[50], mail[100];
         sscanf(line, "%*[^,],%49[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%99[^,],", fName, mail);
 
-        if (strcmp(fName, firstName) == 0 && strcmp(mail, email) == 0) {
-            snprintf(cuntUser, sizeof(cuntUser), "%s|%s", fName, mail);
+        if (strcmp(mail, email) == 0) {
+            snprintf(cuntUser, 100, "%s", mail);
             fclose(fp);
             return 1;
         }
@@ -411,45 +410,60 @@ void ViewHistoryMenu(){
     printf("                          View History                             \n");
     printf("===================================================================\n");
 
-    char cuntUser[100] = "Guest";
-    char name[50], email[100];
-    printf("Enter your first name: ");
-    scanf("%s", name);
+    char email[100], cuntUser[100] = "Guest";
+
     printf("Enter your email: ");
     scanf("%s", email);
 
     while (getchar() != '\n');
 
-    if (loginWithNameAndEmail(name, email, cuntUser)) {
-        viewHistory(cuntUser);  
+    if (loginWithEmail(email, cuntUser)) {
+        viewHistory(email);
     } else {
         printf("Login failed.\n");
     }
 }
 
-void viewHistory(char *currentUser) {
-    clearScreen();
+void viewHistory(const char *email){
+    float total;
 
-    printf("User: %s\n", currentUser);
-    FILE *fp = fopen("history.txt", "r");
+    FILE *fp = fopen("history.csv", "r");
     if (fp == NULL) {
-        printf("No history found.\n");
+        printf("History file not found.\n");
         return;
     }
 
-    char line[256];
-    printf("===================================================================\n");
-    printf("                          View History                             \n");
-    printf("===================================================================\n");
+    char line[512];
+    fgets(line, sizeof(line), fp); 
+
+    int found = 0;
+    printf("\n%-12s %-25s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-9s %-8s\n",
+        "Date", "Email", "Name", "Class", "Seat", "Request", "Luggage", "Meal", "Wifi", "FlightID", "Total");
+    printf("---------------------------------------------------------------------------------------------------------------------------------------\n");
+
     while (fgets(line, sizeof(line), fp)) {
-        if (strstr(line, currentUser) == NULL) continue;
-        printf("%s", line);
+        char date[20], mail[50], name[30], cls[10], seat[5];
+        char req[30], lug[20], meal[20], wifi[10];
+        int flightID;
+
+        sscanf(line, "%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%d,%f",
+            date, mail, name, cls, seat, req, lug, meal, wifi, &flightID, &total);
+
+        if (strcmp(email, mail) == 0) {
+            printf("%-12s %-25s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-9d %-8.2f\n",
+                date, mail, name, cls, seat, req, lug, meal, wifi, flightID, total);         
+            found = 1;
+        }
     }
-    fclose(fp);
-    
-    printf("===================================================================\n");
-    printf("Press ENTER to return to menu...");
-    while (getchar() != '\n');
+
+    if (!found) {
+        printf("No booking history found for this email.\n");
+    }
+
+   fclose(fp);
+   printf("\nPress ENTER to return to menu...");
+   getchar();
+
 }
 
 // ========================== BST FUNCTIONS ==========================
@@ -932,6 +946,20 @@ void displayPaymentSummary(Passenger p, Flight f) {
     printf("\nConfirm Payment? (Y/N): ");
 }
 
+float calculateTotal(Passenger p) {
+    float base = p.price;
+    float wifiFee = (strcmp(p.wifiPreference, "yes") == 0) ? WIFI_FEE : 0;
+    
+    float luggageFee = 0;
+    if (strcmp(p.luggageSize, "medium") == 0) luggageFee = LUGGAGE_MEDIUM_FEE;
+    else if (strcmp(p.luggageSize, "large") == 0) luggageFee = LUGGAGE_LARGE_FEE;
+
+    float mealFee = 0;
+    if (strcmp(p.mealPreference, "vegan") == 0) mealFee = MEAL_VEGAN_FEE;
+    else if (strcmp(p.mealPreference, "halal") == 0) mealFee = MEAL_HALAL_FEE;
+
+    return base + wifiFee + luggageFee + mealFee;
+}
 
 // ==================== INITIALIZE SEAT MAP ==============================
 
@@ -1109,6 +1137,8 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
     p.passengerID = latestPassengerID;
     strcpy(p.classType, classType);
     p.flightID = chosenFlight->data.flightID;
+    p.price = chosenFlight->data.price;
+
 
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
@@ -1134,15 +1164,25 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
             p.flightID, p.classType, p.specialRequest, p.bookingDate,
             p.luggageSize, p.mealPreference, p.wifiPreference, p.specialAssistance);
 
-            // Log to history.txt
-    FILE *hf = fopen("history.txt", "a");
-    if (hf) {
-        fprintf(hf, "%s|%s booked FlightID %d Seat %s Class %s on %s\n",
-            p.firstName, p.email, p.flightID, p.seatNumber, p.classType, p.bookingDate);    
-         fclose(hf);
-}
+            FILE *hf = fopen("history.csv", "a");
+            if (hf != NULL) {
+                fseek(hf, 0, SEEK_END);
+                long size = ftell(hf);
+                if (size == 0) {
+                    fprintf(hf, "BookingDate,Email,FirstName,Class,Seat,SpecialRequest,LuggageSize,Meal,Wifi,FlightID,Total\n");
+                }
+                
+                printf("DEBUG: Price from flight = %.2f\n", chosenFlight->data.price);
+                float total = calculateTotal(p);
+            
+                fprintf(hf, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%.2f\n",
+                    p.bookingDate, p.email, p.firstName, p.classType,
+                    p.seatNumber, p.specialRequest, p.luggageSize,
+                    p.mealPreference, p.wifiPreference, p.flightID, total);
 
-
+                fclose(hf);
+            }            
+                    
         fclose(pf);
         printf("\nBooking successful! Your Passenger ID is %d\n", p.passengerID);
 

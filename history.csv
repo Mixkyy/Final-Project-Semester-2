@@ -1,0 +1,4 @@
+BookingDate,Email,FirstName,Class,Seat,SpecialRequest,LuggageSize,Meal,Wifi,FlightID,Total
+2025-05-04,test@gmail.com,Jax,Business,A1,-,large,halal,yes,1002,10250.00
+2025-05-04,test2@gmail.com,cole,Economy,A7,-,large,halal,yes,1005,9750.00
+2025-05-04,test@gmail.com,Jax,First,A2,-,medium,standard,yes,1001,16450.00
