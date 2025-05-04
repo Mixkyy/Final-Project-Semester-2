@@ -1,3 +1,6 @@
 Passenger ID,First Name,Last Name,Gender,Date of Birth,Passport Number,Nationality,Phone Number,Email Address,Seat Number,Flight ID,Class Type,Special Requests,Booking Date,LuggageSize,MealPreference,WifiPreference,SpecialAssistance
 1,Korapin,Manoprasertkoon,F,2005-07-17,1001,Thai,0819193322,baitoey.her@gmail.com,F16,12345,Economy,-,2025-04-26,Medium,Standard,Yes,None
 2,Panyakorn,Lohaviboonsap,M,2006-06-08,1002,Thai,0818888888,panyakorn.loha@kmutt.ac.th,F15,1004,Economy,,2025-04-30,medium,standard,yes,
+3,Tanakrit,Sunthonwetchapong,M,2006-03-27,0955168133,Thai,0955168167,triton27032549@gmail.com,A2,1004,First,-,2025-05-03,carry-on,standard,yes,
+4,PadThai,Lover,M,2000-01-31,1234,USA,098765432,PadKapao@gmail.com,A1,1004,First,-,2025-05-03,medium,standard,yes,
+5,Harry,Maguire,M,1990-05-13,1432,UK,0678961234,HarryTheKing@gmail.com,B1,1004,First,-,2025-05-03,carry-on,standard,yes,

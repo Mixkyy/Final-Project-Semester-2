@@ -112,6 +112,7 @@ void chooseClassAndSeat(FlightNode* chosenFlight);
 void initializeSeatMap(FlightNode* chosenFlight, char* classType);
 int dijkstra(const char* start, const char* end, char path[][10], int* pathLength);
 void searchFlightRoute(char start[], char destination[], char path[][10], int* pathLength);
+void viewHistory(char *currentUser);
 
 // ========================== ADDITIONAL SERVICE PRICES ==========================
 
@@ -374,6 +375,83 @@ void loadAirports() {
     addConnection("YYZ", "BER", 6300);
 }
 
+int loginWithNameAndEmail(const char *firstName, const char *email, char *cuntUser) {
+    snprintf(cuntUser, 100, "%s|%s", firstName, email);
+    return 1;
+    FILE *fp = fopen("passengers.csv", "r");
+    if (fp == NULL) {
+        printf("Error: cannot open passengers.csv\n");
+        return 0;
+    }
+
+    char line[256];
+    int lineNumber = 0;
+
+    while (fgets(line, sizeof(line), fp)) {
+        lineNumber++;
+        if (lineNumber == 1) continue; 
+
+        char fName[50], mail[100];
+        sscanf(line, "%*[^,],%49[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%99[^,],", fName, mail);
+
+        if (strcmp(fName, firstName) == 0 && strcmp(mail, email) == 0) {
+            snprintf(cuntUser, sizeof(cuntUser), "%s|%s", fName, mail);
+            fclose(fp);
+            return 1;
+        }
+    }
+
+    fclose(fp);
+    return 0;
+}
+
+void ViewHistoryMenu(){
+    clearScreen();
+    printf("===================================================================\n");
+    printf("                          View History                             \n");
+    printf("===================================================================\n");
+
+    char cuntUser[100] = "Guest";
+    char name[50], email[100];
+    printf("Enter your first name: ");
+    scanf("%s", name);
+    printf("Enter your email: ");
+    scanf("%s", email);
+
+    while (getchar() != '\n');
+
+    if (loginWithNameAndEmail(name, email, cuntUser)) {
+        viewHistory(cuntUser);  
+    } else {
+        printf("Login failed.\n");
+    }
+}
+
+void viewHistory(char *currentUser) {
+    clearScreen();
+
+    printf("User: %s\n", currentUser);
+    FILE *fp = fopen("history.txt", "r");
+    if (fp == NULL) {
+        printf("No history found.\n");
+        return;
+    }
+
+    char line[256];
+    printf("===================================================================\n");
+    printf("                          View History                             \n");
+    printf("===================================================================\n");
+    while (fgets(line, sizeof(line), fp)) {
+        if (strstr(line, currentUser) == NULL) continue;
+        printf("%s", line);
+    }
+    fclose(fp);
+    
+    printf("===================================================================\n");
+    printf("Press ENTER to return to menu...");
+    while (getchar() != '\n');
+}
+
 // ========================== BST FUNCTIONS ==========================
 
 // Insert one flight into the BST
@@ -489,13 +567,12 @@ void customerMenu() {
         printf("Enter your choice: ");
         scanf("%d", &choice);
         while (getchar() != '\n'); // Clear buffer after scanf
-
         switch (choice) {
             case 1:
                 searchFlightsByDestination();
                 break;
             case 2:
-                // View History (can leave empty for now)
+                ViewHistoryMenu();
                 break;
             case 3:
                 return; // Exit customer menu
@@ -1056,6 +1133,15 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
             p.nationality, p.phoneNumber, p.email, p.seatNumber,
             p.flightID, p.classType, p.specialRequest, p.bookingDate,
             p.luggageSize, p.mealPreference, p.wifiPreference, p.specialAssistance);
+
+            // Log to history.txt
+    FILE *hf = fopen("history.txt", "a");
+    if (hf) {
+        fprintf(hf, "%s|%s booked FlightID %d Seat %s Class %s on %s\n",
+            p.firstName, p.email, p.flightID, p.seatNumber, p.classType, p.bookingDate);    
+         fclose(hf);
+}
+
 
         fclose(pf);
         printf("\nBooking successful! Your Passenger ID is %d\n", p.passengerID);
