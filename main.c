@@ -183,7 +183,7 @@ int isTimeAfterOrEqual(const char* time1, const char* time2) {
     return 0;
 }
 
-// Approximate flight durations (can adjust if needed)
+// Set Flight Durations
 int getFlightDurationHours(const char* from, const char* to) {
     if ((strcmp(from, "BKK") == 0 && strcmp(to, "NRT") == 0) ||
         (strcmp(from, "NRT") == 0 && strcmp(to, "BKK") == 0)) return 6;
@@ -201,7 +201,7 @@ int getFlightDurationHours(const char* from, const char* to) {
         (strcmp(from, "GRU") == 0 && strcmp(to, "SYD") == 0)) return 15;
     if ((strcmp(from, "BKK") == 0 && strcmp(to, "HKT") == 0) ||
         (strcmp(from, "HKT") == 0 && strcmp(to, "BKK") == 0)) return 1;
-    return 8; // Default if unknown
+    return 8;
 }
 
 
@@ -284,7 +284,7 @@ void loadPassengers() {
     if (!file) return;
 
     char line[512];
-    fgets(line, sizeof(line), file); // Skip header
+    fgets(line, sizeof(line), file); 
 
     while (fgets(line, sizeof(line), file)) {
         PassengerNode* newNode = (PassengerNode*)malloc(sizeof(PassengerNode));
