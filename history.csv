@@ -2,3 +2,11 @@ BookingDate,Email,FirstName,Class,Seat,SpecialRequest,LuggageSize,Meal,Wifi,Flig
 2025-05-04,test@gmail.com,Jax,Business,A1,-,large,halal,yes,1002,10250.00
 2025-05-04,test2@gmail.com,cole,Economy,A7,-,large,halal,yes,1005,9750.00
 2025-05-04,test@gmail.com,Jax,First,A2,-,medium,standard,yes,1001,16450.00
+2025-05-05,korapin.man@gmail.com,Korapin,Business,D4,-,large,halal,yes,1004,15750.00
+2025-05-05,korapin.man@gmail.com,Korapin,First,A1,-,large,vegan,yes,1009,60750.00
+2025-05-05,korapin.man@gmail.com,Korapin,First,A3,-,large,vegan,yes,1005,9750.00
+2025-05-05,korapin.man@gmail.com,Pawarut,First,A1,-,large,halal,yes,1003,1000.00
+2025-05-05,asdasd,Kawinpob,First,B1,-,medium,vegan,yes,1003,800.00
+2025-05-05,korapin.man@gmail.com,Jay,Economy,A1,-,large,halal,yes,1002,1130.00
+2025-05-05,korapin.man@gmail.com,Kan,Economy,B1,-,medium,vegan,yes,1002,930.00
+2025-05-05,d,Korapin,Economy,C1,-,large,vegan,yes,1002,1130.00
