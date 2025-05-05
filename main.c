@@ -890,9 +890,11 @@ void searchFlightRoute(char start[], char destination[], char path[][10], int* p
 
     printf("Enter your departure airport (Example: BKK): ");
     scanf("%s", start);
+    for (int i = 0; start[i]; i++) start[i] = toupper(start[i]);
 
     printf("Enter your destination airport (Example: YYZ): ");
     scanf("%s", destination);
+    for (int i = 0; destination[i]; i++) destination[i] = toupper(destination[i]);
 
     printf("\nFinding shortest route...\n");
 
@@ -1136,9 +1138,35 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
     scanf("%s", p.phoneNumber);
     while (getchar() != '\n');
 
+<<<<<<< HEAD
     printf("Enter your email address: ");
     scanf("%s", p.email);
     while (getchar() != '\n');
+=======
+        for (int i = 0; i < strlen(p.phoneNumber); i++) {
+            if (!isdigit(p.phoneNumber[i])) {
+                isValidPhone = 0;
+                break;
+            }
+        }
+
+    if (!isValidPhone) {
+        printf("Phone number must contain digits only. Try again.\n");
+    }
+    } while (!isValidPhone);
+
+    do {
+        printf("Enter your email address: ");
+        scanf("%s", p.email);
+        while (getchar() != '\n');
+    
+        if (strstr(p.email, "@") && strstr(p.email, ".com")) {
+            break;
+        } else {
+            printf("Invalid email format.\n");
+        }
+    } while (1);    
+>>>>>>> ff08cf140817787e7c622cc49b5dc14f0577bec5
 
     int validSeat = 0;
     do {
@@ -1161,6 +1189,13 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
         int maxRow = (totalSeats + seatsPerRow - 1) / seatsPerRow;
         if (row < 1 || row > maxRow) {
             printf("Invalid seat row '%d'. Must be between 1 and %d.\n", row, maxRow);
+            
+            continue;
+        }
+
+        int seatIndexCheck = (row - 1) * seatsPerRow + (strchr(seatColumns, column) - seatColumns);
+        if (seatIndexCheck >= totalSeats) {
+            printf("Seat %c%d does not exist. Please choose a valid seat.\n", column, row);
             continue;
         }
 
