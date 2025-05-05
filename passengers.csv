@@ -200,9 +200,3 @@ PassengerID,FirstName,LastName,Gender,DOB,PassportNumber,Nationality,PhoneNumber
 5202,William,Smith,M,2016-02-05,P6292986,Germany,0847594974,william.smith@mail.com,C35,6067,Economy,None,2025-05-02,Medium,Halal,Yes,Need help with boarding
 5203,John,Williams,M,2011-03-02,P5304416,Thailand,0827211469,john.williams@mail.com,A28,6067,Business,None,2025-05-11,Large,Halal,Yes,
 5204,James,Smith,M,1993-10-28,P4923214,Brazil,0858382166,james.smith@mail.com,D30,6067,Business,Wheelchair,2025-05-06,Carry-On,Halal,Yes,
-5205,Korapin,Manoprasertkoon,F,2005-07-17,123465789,TH,0836964551,korapin.man@gmail.com,A1,6021,First,-,2025-05-06,large,vegan,yes,
-5206,Kan,Tawan,F,2006-12-14,123987456,JP,09648521,korapin.man@gmail.com,A1,1000,First,-,2025-05-06,large,standard,yes,
-5207,Pawarut,Link,M,2006-06-21,984685426,KOR,98945165987,korapin.man@gmail.com,H15,6210,Economy,-,2025-05-06,medium,standard,yes,
-5208,Phureeruch,Jay,M,2006-07-01,98426,65,695426,korapin.man@gmail.com,F6,6210,Economy,-,2025-05-06,large,halal,yes,
-5209,Kawinpob,Kan,M,2006-05-21,6874584,USA,0946565856,korapin.man@gmail.com,C12,6210,Economy,-,2025-05-06,large,vegan,yes,
-5210,Ton,Tompson,M,2005-12-11,6854218,GEr,985658978,korapin.man@gmail.com,D5,6250,Business,-,2025-05-06,large,vegan,yes,
