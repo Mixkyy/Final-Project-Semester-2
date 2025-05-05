@@ -1584,8 +1584,7 @@ void editFlight() {
                     "FlightID", "From", "To", "Date", "Time", "PlaneID", "Model", "First", "Business", "Economy", "Price", "Capacity", "Available");
                 printf("-----------------------------------------------------------------------------------------------------------------------------------\n");
             
-                FlightNode* current = flightHead;
-                    Flight f = current->data;
+                Flight f = current->data;
                     printf("%-8d %-8s %-8s %-12s %-6s %-8s %-20s %-8d %-10d %-10d %-12.2f %-12d %-12d\n",
                         f.flightID, f.departure, f.destination, f.flight_date, f.flight_time,
                         f.airplaneID, f.airplaneModel, f.firstClassSeats, f.businessClassSeats,
@@ -1778,9 +1777,169 @@ void editPassenger() {
     printf("==================================================\n");
     printf("                 EDIT PASSENGER                   \n");
     printf("==================================================\n");
-    printf("Press Enter to return...");
-    getchar(); getchar();
+ 
+    // Step 1: Display flights that have passengers
+    FlightNode* fptr = flightHead;
+    int hasPassengerFlight = 0;
+    printf("%-10s %-8s %-8s %-12s %-6s\n", "FlightID", "From", "To", "Date", "Time");
+    printf("--------------------------------------------------------\n");
+    while (fptr) {
+        int count = 0;
+        PassengerNode* p = passengerHead;
+        while (p) {
+            if (p->data.flightID == fptr->data.flightID) {
+                count++;
+                break;
+            }
+            p = p->next;
+        }
+        if (count > 0) {
+            hasPassengerFlight = 1;
+            printf("%-10d %-8s %-8s %-12s %-6s\n", fptr->data.flightID, fptr->data.departure, fptr->data.destination, fptr->data.flight_date, fptr->data.flight_time);
+        }
+        fptr = fptr->next;
+    }
+    if (!hasPassengerFlight) {
+        printf("No flights with passengers to edit. Press Enter...");
+        getchar(); getchar();
+        return;
+    }
+
+    int flightID;
+    printf("\nEnter Flight ID to view passengers: ");
+    scanf("%d", &flightID);
+    getchar();
+
+    // Step 2: Group passengers by class and sort by ID
+    PassengerNode* sorted = NULL;
+    PassengerNode* p = passengerHead;
+    while (p) {
+        if (p->data.flightID == flightID) {
+            PassengerNode* newNode = (PassengerNode*)malloc(sizeof(PassengerNode));
+            newNode->data = p->data;
+            newNode->next = NULL;
+
+            if (!sorted || newNode->data.passengerID < sorted->data.passengerID) {
+                newNode->next = sorted;
+                sorted = newNode;
+            } else {
+                PassengerNode* cur = sorted;
+                while (cur->next && cur->next->data.passengerID < newNode->data.passengerID) {
+                    cur = cur->next;
+                }
+                newNode->next = cur->next;
+                cur->next = newNode;
+            }
+        }
+        p = p->next;
+    }
+
+    if (!sorted) {
+        printf("No passengers found for this flight. Press Enter...");
+        getchar(); getchar();
+        return;
+    }
+
+    clearScreen();
+    printf("==================================================\n");
+    printf("             PASSENGERS ON FLIGHT %d              \n", flightID);
+    printf("==================================================\n");
+
+    const char* classTypes[] = {"First", "Business", "Economy"};
+    for (int c = 0; c < 3; c++) {
+        int classHasData = 0;
+        PassengerNode* temp = sorted;
+        while (temp) {
+            if (strcmp(temp->data.classType, classTypes[c]) == 0) {
+                if (!classHasData) {
+                    printf("\n%s Class Passengers:\n", classTypes[c]);
+                    printf("%-4s %-10s %-20s %-4s %-6s %-12s %-10s %-6s %-30s\n",
+                           "ID", "Firstname", "Lastname", "Sex", "Seat", "Luggage", "Meal", "Wifi", "Email");
+                    printf("--------------------------------------------------------------------------------------------------------\n");
+                    classHasData = 1;
+                }
+                printf("%-4d %-10s %-20s %-4s %-6s %-12s %-10s %-6s %-30s\n",
+                       temp->data.passengerID,
+                       temp->data.firstName,
+                       temp->data.lastName,
+                       temp->data.gender,
+                       temp->data.seatNumber,
+                       temp->data.luggageSize,
+                       temp->data.mealPreference,
+                       temp->data.wifiPreference,
+                       temp->data.email);
+            }
+            temp = temp->next;
+        }
+    }
+
+    int editID;
+    printf("\nEnter Passenger ID to edit: ");
+    scanf("%d", &editID);
+    getchar();
+    PassengerNode* target = passengerHead;
+    while (target) {
+        if (target->data.passengerID == editID && target->data.flightID == flightID) {
+            clearScreen();
+            printf("==================================================\n");
+            printf("              EDITING PASSENGER INFO              \n");
+            printf("==================================================\n");
+            printf("%-4s %-10s %-20s %-4s %-6s %-12s %-10s %-6s %-30s\n",
+                   "ID", "Firstname", "Lastname", "Sex", "Seat", "Luggage", "Meal", "Wifi", "Email");
+            printf("--------------------------------------------------------------------------------------------------------\n");
+            printf("%-4d %-10s %-20s %-4s %-6s %-12s %-10s %-6s %-30s\n",
+                   target->data.passengerID,
+                   target->data.firstName,
+                   target->data.lastName,
+                   target->data.gender,
+                   target->data.seatNumber,
+                   target->data.luggageSize,
+                   target->data.mealPreference,
+                   target->data.wifiPreference,
+                   target->data.email);
+            printf("\n");
+
+            char input[100];
+
+            printf("Enter new First Name [%s]: ", target->data.firstName);
+            fgets(input, sizeof(input), stdin);
+            if (input[0] != '\n') {
+                input[strcspn(input, "\n")] = 0;
+                strcpy(target->data.firstName, input);
+            }
+
+            printf("Enter new Last Name [%s]: ", target->data.lastName);
+            fgets(input, sizeof(input), stdin);
+            if (input[0] != '\n') {
+                input[strcspn(input, "\n")] = 0;
+                strcpy(target->data.lastName, input);
+            }
+
+            printf("Enter new Phone Number [%s]: ", target->data.phoneNumber);
+            fgets(input, sizeof(input), stdin);
+            if (input[0] != '\n') {
+                input[strcspn(input, "\n")] = 0;
+                strcpy(target->data.phoneNumber, input);
+            }
+
+            printf("Enter new Email [%s]: ", target->data.email);
+            fgets(input, sizeof(input), stdin);
+            if (input[0] != '\n') {
+                input[strcspn(input, "\n")] = 0;
+                strcpy(target->data.email, input);
+            }
+
+            printf("\nPassenger updated successfully. Press Enter...");
+            getchar();
+            return;
+        }
+        target = target->next;
+    }
+
+    printf("Passenger ID not found. Press Enter...");
+    getchar();
 }
+
 
 void viewPassengers() {
     clearScreen();
@@ -1894,7 +2053,7 @@ void viewPassengers() {
 
             printf("\n%s Class Passengers:\n", classes[c]);
             printf("%-4s %-10s %-20s %-4s %-6s %-12s %-10s %-6s %-30s\n",
-                   "ID", "First", "Last", "Sex", "Seat", "Luggage", "Meal", "Wifi", "Email");
+                   "ID", "Firstname", "Lastname", "Sex", "Seat", "Luggage", "Meal", "Wifi", "Email");
             printf("--------------------------------------------------------------------------------------------------------\n");
             for (int i = 0; i < count; i++) {
                 if (strcmp(matching[i].classType, classes[c]) == 0) {
@@ -1914,7 +2073,7 @@ void viewPassengers() {
     } else {
         printf("Passengers for Flight %d:\n", targetID);
         printf("%-4s %-10s %-20s %-4s %-6s %-8s %-12s %-10s %-6s %-30s\n",
-               "ID", "First", "Last", "Sex", "Seat", "Class", "Luggage", "Meal", "Wifi", "Email");
+               "ID", "Firstname", "Lastname", "Sex", "Seat", "Class", "Luggage", "Meal", "Wifi", "Email");
         printf("---------------------------------------------------------------------------------------------------------------------------\n");
 
         for (int i = 0; i < count; i++) {
