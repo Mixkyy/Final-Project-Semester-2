@@ -1,1 +1,4 @@
 BookingDate,Email,FirstName,Class,Seat,SpecialRequest,LuggageSize,Meal,Wifi,FlightID,Total
+2025-05-06,korapin.man@gmail.com,Korapin,Economy,I1,-,large,vegan,yes,6128,18521.47
+2025-05-06,korapin.man@gmai.com,Suwapich,Economy,H1,-,medium,halal,yes,6128,18321.47
+2025-05-06,korapin.man@gmail.com,a,Economy,G1,-,medium,standard,no,6128,18071.47

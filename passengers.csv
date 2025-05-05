@@ -159,7 +159,6 @@ PassengerID,FirstName,LastName,Gender,DOB,PassportNumber,Nationality,PhoneNumber
 5161,Robert,Brown,M,2014-08-31,P4272536,Canada,0827510785,robert.brown@mail.com,F40,6024,Economy,Wheelchair,2025-05-10,Carry-On,Standard,Yes,Need help with boarding
 5162,Robert,Johnson,M,1991-07-05,P2174117,Canada,0817989536,robert.johnson@mail.com,D32,6024,Business,Vegetarian Meal,2025-05-01,Medium,Vegan,No,Need help with boarding
 5163,Michael,Brown,M,2020-01-01,P7709338,Thailand,0858457038,michael.brown@mail.com,D28,6024,Business,None,2025-05-05,Carry-On,Standard,Yes,Need help with boarding
-5164,James,Williams,M,2003-08-05,P2949010,Thailand,0818018780,james.williams@mail.com,F26,6024,First,Window seat,2025-05-09,Carry-On,Vegan,Yes,
 5165,John,Williams,M,2024-09-22,P1002100,Japan,0833911290,john.williams@mail.com,C2,6053,Business,Wheelchair,2025-05-09,Large,Standard,Yes,Hearing impaired support
 5166,Linda,Jones,F,1997-04-23,P4221117,Germany,0889156543,linda.jones@mail.com,E12,6053,First,None,2025-05-10,Large,Standard,No,Need help with boarding
 5167,Linda,Williams,F,1998-03-20,P9549590,Brazil,0894068150,linda.williams@mail.com,D29,6053,First,Window seat,2025-05-01,Carry-On,Standard,No,Hearing impaired support
@@ -200,3 +199,5 @@ PassengerID,FirstName,LastName,Gender,DOB,PassportNumber,Nationality,PhoneNumber
 5202,William,Smith,M,2016-02-05,P6292986,Germany,0847594974,william.smith@mail.com,C35,6067,Economy,None,2025-05-02,Medium,Halal,Yes,Need help with boarding
 5203,John,Williams,M,2011-03-02,P5304416,Thailand,0827211469,john.williams@mail.com,A28,6067,Business,None,2025-05-11,Large,Halal,Yes,
 5204,James,Smith,M,1993-10-28,P4923214,Brazil,0858382166,james.smith@mail.com,D30,6067,Business,Wheelchair,2025-05-06,Carry-On,Halal,Yes,
+5205,Korapin,Manoprasertkoon,F,2005-07-17,133791,TH,0836964551,korapin.man@gmail.com,I1,6128,Economy,-,2025-05-06,large,vegan,yes,
+5206,Suwapich,Manoprasertkoon,F,2003-02-06,649051,TH,0696915145,korapin.man@gmai.com,H1,6128,Economy,-,2025-05-06,medium,halal,yes,

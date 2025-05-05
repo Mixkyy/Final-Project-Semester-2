@@ -968,7 +968,7 @@ void chooseClassAndSeat(FlightNode* chosenFlight) {
     printf("===================================================================\n");
     printf("                        SELECT CLASS TYPE                           \n");
     printf("===================================================================\n");
-
+    printf("                        Flight ID: %d\n", chosenFlight->data.flightID);
     int choice;
     printf("1. First Class\n");
     printf("2. Business Class\n");
@@ -1559,7 +1559,6 @@ void addFlight() {
     getchar(); getchar();
 }
 
-
 void removeFlight() {
     clearScreen();
     printf("==================================================\n");
@@ -1570,9 +1569,11 @@ void removeFlight() {
         getchar(); getchar();
         return;
     }
+
     printf("%-8s %-8s %-8s %-12s %-6s %-8s %-20s %-8s %-10s %-10s %-12s %-12s %-12s\n",
         "FlightID", "From", "To", "Date", "Time", "PlaneID", "Model", "First", "Business", "Economy", "Price", "Capacity", "Available");
     printf("------------------------------------------------------------------------------------------------------------------------------------------------\n");
+
     FlightNode* ptr = flightHead;
     int editableFound = 0;
     while (ptr) {
@@ -1588,33 +1589,57 @@ void removeFlight() {
     }
 
     if (!editableFound) {
-        printf("\nNo editable flights found (only fully unbooked flights can be edited). Press Enter...");
+        printf("\nNo editable flights found (only fully unbooked flights can be deleted). Press Enter...");
         getchar(); getchar();
         return;
     }
-    
 
     int id;
-    printf("Enter Flight ID to remove: ");
+    printf("\nEnter Flight ID to remove: ");
     scanf("%d", &id);
+    
+    clearScreen();
 
     FlightNode *current = flightHead, *prev = NULL;
     while (current) {
-        if (current->data.flightID == id) {
-            if (!prev) flightHead = current->next;
-            else prev->next = current->next;
-            free(current);
-            saveFlights();
-            printf("\nFlight removed successfully! Press Enter...");
+        if (current->data.flightID == id && current->data.seatsAvailable == current->data.capacity) {
+            Flight f = current->data;
+
+            printf("\n==================================================\n");
+            printf("              CONFIRM DELETE FLIGHT               \n");
+            printf("==================================================\n");
+            printf("ID     From     To       Date         Time   PlaneID  Model                First  Business  Economy  Price       Capacity  Available\n");
+            printf("------------------------------------------------------------------------------------------------------------------------------\n");
+            printf("%-6d %-8s %-8s %-12s %-6s %-8s %-20s %-6d %-9d %-8d %-11.2f %-9d %-9d\n",
+                f.flightID, f.departure, f.destination, f.flight_date, f.flight_time,
+                f.airplaneID, f.airplaneModel, f.firstClassSeats, f.businessClassSeats,
+                f.economyClassSeats, f.price, f.capacity, f.seatsAvailable);
+
+            char confirm;
+            printf("\nAre you sure you want to delete this flight? (Y/N): ");
+            getchar(); // clear newline
+            scanf("%c", &confirm);
+
+            if (confirm == 'Y' || confirm == 'y') {
+                if (!prev) flightHead = current->next;
+                else prev->next = current->next;
+                free(current);
+                saveFlights();
+                printf("\nFlight removed successfully! Press Enter...");
+            } else {
+                printf("\nFlight removal canceled. Press Enter...");
+            }
             getchar(); getchar();
             return;
         }
         prev = current;
         current = current->next;
     }
-    printf("\nFlight ID not found. Press Enter...");
+
+    printf("\nFlight ID not found or not eligible for deletion. Press Enter...");
     getchar(); getchar();
 }
+
 
 void editFlight() {
     clearScreen();
