@@ -7,6 +7,10 @@ BookingDate,Email,FirstName,Class,Seat,SpecialRequest,LuggageSize,Meal,Wifi,Flig
 2025-05-05,test@gmail.com,Ryce,Economy,A14,-,medium,vegan,yes,1001,16550.00
 2025-05-05,test@gmail.com,Ray,Economy,A15,-,medium,vegan,yes,1001,16550.00
 2025-05-05,korapin.man@gmail.com,Kan,First,B1,-,large,vegan,yes,1006,30750.00
+<<<<<<< HEAD
+2025-05-05,@.com,C3,First,C1,-,large,halal,yes,1004,30750.00
+=======
 2025-05-05,korapin.man@gmail.com,Micky,First,A1,-,large,halal,yes,1009,120750.00
 2025-05-05,@.com,Kan,Economy,B29,-,large,vegan,yes,1002,1130.00
 2025-05-05,@.com,Korapin,First,C3,-,large,halal,no,1002,1360.00
+>>>>>>> 771f840a5eca460dd89491cc1151e5d21c5c51a9
