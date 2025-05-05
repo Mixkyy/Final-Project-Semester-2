@@ -14,3 +14,8 @@ BookingDate,Email,FirstName,Class,Seat,SpecialRequest,LuggageSize,Meal,Wifi,Flig
 2025-05-05,@.com,Kan,Economy,B29,-,large,vegan,yes,1002,1130.00
 2025-05-05,@.com,Korapin,First,C3,-,large,halal,no,1002,1360.00
 >>>>>>> 771f840a5eca460dd89491cc1151e5d21c5c51a9
+2025-05-06,korapin.man@gmail.com,Korapin,First,A1,-,large,vegan,yes,6021,18316.76
+2025-05-06,korapin.man@gmail.com,Kan,First,A1,-,large,standard,yes,1000,12650.00
+2025-05-06,korapin.man@gmail.com,Pawarut,Economy,H15,-,medium,standard,yes,6210,19430.66
+2025-05-06,korapin.man@gmail.com,Phureeruch,Economy,F6,-,large,halal,yes,6210,19730.66
+2025-05-06,korapin.man@gmail.com,Kawinpob,Economy,C12,-,large,vegan,yes,6210,19730.66

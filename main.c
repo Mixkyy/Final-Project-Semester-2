@@ -884,6 +884,16 @@ void searchFlightRoute(char start[], char destination[], char path[][10], int* p
 // ===================== CHOOSE CLASS AND SEAT =====================
 
 void chooseClassAndSeat(FlightNode* chosenFlight) {
+    // Fix: redirect to the real flight node in flightHead
+    FlightNode* realFlight = flightHead;
+    while (realFlight) {
+        if (realFlight->data.flightID == chosenFlight->data.flightID) {
+            chosenFlight = realFlight;
+            break;
+        }
+        realFlight = realFlight->next;
+    }
+
     clearScreen();
     printf("===================================================================\n");
     printf("                        SELECT CLASS TYPE                           \n");
@@ -1265,6 +1275,8 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
         newNode->data = p;
         newNode->next = passengerHead;
         passengerHead = newNode;
+        chosenFlight->data.seatsAvailable--;
+        saveFlights();
         printf("\nBooking successful! Your Passenger ID is %d\n", p.passengerID);
 
     } else {
