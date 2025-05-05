@@ -445,6 +445,8 @@ int compareByFlightIDThenDate(const void *a, const void *b) {
 
 void viewHistory(const char *email) {
     clearScreen();
+
+    printf("\nBooking History for: %s\n\n", email);
     
     FILE *fp = fopen("history.csv", "r");
     if (fp == NULL) {
@@ -455,7 +457,7 @@ void viewHistory(const char *email) {
     History records[MAX_RECORDS];
     int count = 0;
     char line[512];
-    fgets(line, sizeof(line), fp); // ข้าม header
+    fgets(line, sizeof(line), fp);
 
     while (fgets(line, sizeof(line), fp)) {
         sscanf(line, "%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%d,%f",
@@ -472,22 +474,23 @@ void viewHistory(const char *email) {
     int found = 0;
     int lastFlightID = -1;
 
-    printf("\n%-12s %-25s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-9s %-8s\n",
-           "Date", "Email", "Name", "Class", "Seat", "Request", "Luggage", "Meal", "Wifi", "FlightID", "Total");
-    printf("---------------------------------------------------------------------------------------------------------------------------------------\n");
+    printf("--------------------------------------------------------------------------------------------------------------\n");
+    printf("%-9s %-12s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-8s\n",
+       "FlightID", "Date", "Name", "Class", "Seat", "Request", "Luggage", "Meal", "Wifi", "Total");
+    printf("--------------------------------------------------------------------------------------------------------------\n");
 
     for (int i = 0; i < count; i++) {
-        if (strcmp(records[i].mail, email) == 0) {
-            // คั่นเฉพาะเมื่อ Flight ID เปลี่ยน
+    if (strcmp(records[i].mail, email) == 0) {
             if (lastFlightID != -1 && records[i].flightID != lastFlightID) {
-                printf("---------------------------------------------------------------------------------------------------------------------------------------\n");
+                printf("--------------------------------------------------------------------------------------------------------------\n");
             }
 
-         printf("%-12s %-25s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-9d %-8.2f\n",
-                   records[i].date, records[i].mail, records[i].name,
-                   records[i].cls, records[i].seat, records[i].req,
-                   records[i].lug, records[i].meal, records[i].wifi,
-                   records[i].flightID, records[i].total);
+         printf("%-9d %-12s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-8.2f\n",
+       records[i].flightID, records[i].date, records[i].name,
+       records[i].cls, records[i].seat, records[i].req,
+       records[i].lug, records[i].meal, records[i].wifi,
+       records[i].total);
+
 
             lastFlightID = records[i].flightID;
             found = 1;
@@ -948,7 +951,11 @@ int isSeatOccupied(int flightID, const char* classType, const char* seat) {
 // ====================== PAYMENT SUMMARY FUNCTION ==============================
 
 void displayPaymentSummary(Passenger p, Flight f) {
-    float base = f.price;
+    float multiplier = 1.0;
+    if (strcmp(p.classType, "Business") == 0) multiplier = 5.0;
+    else if (strcmp(p.classType, "First") == 0) multiplier = 12.0;
+    float base = f.price * multiplier;
+
     float wifiFee = (strcmp(p.wifiPreference, "yes") == 0) ? WIFI_FEE : 0;
     
     float luggageFee = 0;
@@ -979,7 +986,11 @@ void displayPaymentSummary(Passenger p, Flight f) {
 }
 
 float calculateTotal(Passenger p) {
-    float base = p.price;
+    float multiplier = 1.0;
+    if (strcmp(p.classType, "Business") == 0) multiplier = 1.5;
+    else if (strcmp(p.classType, "First") == 0) multiplier = 2.0;
+    float base = p.price * multiplier;
+
     float wifiFee = (strcmp(p.wifiPreference, "yes") == 0) ? WIFI_FEE : 0;
     
     float luggageFee = 0;
@@ -1067,16 +1078,18 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
 
     do {
         printf("Enter your gender (M/F): ");
-        scanf("%s", p.gender);
+        char genderInput[10];
+        scanf("%s", genderInput);
         while (getchar() != '\n');
-
-        p.gender[0] = toupper(p.gender[0]);
-        p.gender[1] = '\0';
-
-        if (strcmp(p.gender, "M") != 0 && strcmp(p.gender, "F") != 0) {
+    
+        if (strlen(genderInput) == 1 && (genderInput[0] == 'M' || genderInput[0] == 'm' || genderInput[0] == 'F' || genderInput[0] == 'f')) {
+            p.gender[0] = toupper(genderInput[0]);
+            p.gender[1] = '\0';
+            break;
+        } else {
             printf("Invalid gender. Please enter 'M' or 'F'.\n");
         }
-    } while (strcmp(p.gender, "M") != 0 && strcmp(p.gender, "F") != 0);
+    } while (1);    
 
     do {
         printf("Enter your date of birth (YYYY-MM-DD): ");
@@ -1094,13 +1107,36 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
     scanf("%s", p.nationality);
     while (getchar() != '\n');
 
-    printf("Enter your phone number: ");
-    scanf("%s", p.phoneNumber);
-    while (getchar() != '\n');
+    int isValidPhone;
+    do {
+        isValidPhone = 1;
+        printf("Enter your phone number: ");
+        scanf("%s", p.phoneNumber);
+        while (getchar() != '\n');
 
-    printf("Enter your email address: ");
-    scanf("%s", p.email);
-    while (getchar() != '\n');
+        for (int i = 0; i < strlen(p.phoneNumber); i++) {
+            if (!isdigit(p.phoneNumber[i])) {
+                isValidPhone = 0;
+                break;
+            }
+        }
+
+    if (!isValidPhone) {
+        printf("Phone number must contain digits only. Try again.\n");
+    }
+    } while (!isValidPhone);
+
+    do {
+        printf("Enter your email address: ");
+        scanf("%s", p.email);
+        while (getchar() != '\n');
+    
+        if (strstr(p.email, "@") && strstr(p.email, ".com")) {
+            break;
+        } else {
+            printf("Invalid email format. Please include '@' and end with '.com'.\n");
+        }
+    } while (1);    
 
     int validSeat = 0;
     do {
