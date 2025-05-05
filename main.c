@@ -841,7 +841,7 @@ int dijkstra(const char* start, const char* end, char path[][10], int* pathLengt
         strcpy(path[i], airports[temp[len - i - 1]].airportCode);
     }
 
-    return dist[endIndex]; // Return total distance
+    return dist[endIndex];
 }
 
 // ===================== SEARCH FOR FLIGHT =====================
