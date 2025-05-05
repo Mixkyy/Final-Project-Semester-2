@@ -424,34 +424,72 @@ void ViewHistoryMenu(){
     }
 }
 
-void viewHistory(const char *email){
-    float total;
+#define MAX_RECORDS 1000
 
+typedef struct {
+    char date[20], mail[50], name[30], cls[10], seat[5];
+    char req[30], lug[20], meal[20], wifi[10];
+    int flightID;
+    float total;
+} History;
+
+int compareByFlightIDThenDate(const void *a, const void *b) {
+    History *ha = (History *)a;
+    History *hb = (History *)b;
+
+    if (ha->flightID != hb->flightID)
+        return ha->flightID - hb->flightID;
+    else
+        return strcmp(ha->date, hb->date);
+}
+
+void viewHistory(const char *email) {
+    clearScreen();
+    
     FILE *fp = fopen("history.csv", "r");
     if (fp == NULL) {
         printf("History file not found.\n");
         return;
     }
 
+    History records[MAX_RECORDS];
+    int count = 0;
     char line[512];
-    fgets(line, sizeof(line), fp); 
-
-    int found = 0;
-    printf("\n%-12s %-25s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-9s %-8s\n",
-        "Date", "Email", "Name", "Class", "Seat", "Request", "Luggage", "Meal", "Wifi", "FlightID", "Total");
-    printf("---------------------------------------------------------------------------------------------------------------------------------------\n");
+    fgets(line, sizeof(line), fp); // ข้าม header
 
     while (fgets(line, sizeof(line), fp)) {
-        char date[20], mail[50], name[30], cls[10], seat[5];
-        char req[30], lug[20], meal[20], wifi[10];
-        int flightID;
-
         sscanf(line, "%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%d,%f",
-            date, mail, name, cls, seat, req, lug, meal, wifi, &flightID, &total);
+               records[count].date, records[count].mail, records[count].name,
+               records[count].cls, records[count].seat, records[count].req,
+               records[count].lug, records[count].meal, records[count].wifi,
+               &records[count].flightID, &records[count].total);
+        count++;
+    }
+    fclose(fp);
 
-        if (strcmp(email, mail) == 0) {
-            printf("%-12s %-25s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-9d %-8.2f\n",
-                date, mail, name, cls, seat, req, lug, meal, wifi, flightID, total);         
+    qsort(records, count, sizeof(History), compareByFlightIDThenDate);
+
+    int found = 0;
+    int lastFlightID = -1;
+
+    printf("\n%-12s %-25s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-9s %-8s\n",
+           "Date", "Email", "Name", "Class", "Seat", "Request", "Luggage", "Meal", "Wifi", "FlightID", "Total");
+    printf("---------------------------------------------------------------------------------------------------------------------------------------\n");
+
+    for (int i = 0; i < count; i++) {
+        if (strcmp(records[i].mail, email) == 0) {
+            // คั่นเฉพาะเมื่อ Flight ID เปลี่ยน
+            if (lastFlightID != -1 && records[i].flightID != lastFlightID) {
+                printf("---------------------------------------------------------------------------------------------------------------------------------------\n");
+            }
+
+         printf("%-12s %-25s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-9d %-8.2f\n",
+                   records[i].date, records[i].mail, records[i].name,
+                   records[i].cls, records[i].seat, records[i].req,
+                   records[i].lug, records[i].meal, records[i].wifi,
+                   records[i].flightID, records[i].total);
+
+            lastFlightID = records[i].flightID;
             found = 1;
         }
     }
@@ -460,11 +498,10 @@ void viewHistory(const char *email){
         printf("No booking history found for this email.\n");
     }
 
-   fclose(fp);
-   printf("\nPress ENTER to return to menu...");
-   getchar();
-
+    printf("\nPress ENTER to return to menu...");
+    getchar();
 }
+
 
 // ========================== BST FUNCTIONS ==========================
 
