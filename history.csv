@@ -2,20 +2,15 @@ BookingDate,Email,FirstName,Class,Seat,SpecialRequest,LuggageSize,Meal,Wifi,Flig
 2025-05-04,test@gmail.com,Jax,Business,A1,-,large,halal,yes,1002,10250.00
 2025-05-04,test2@gmail.com,cole,Economy,A7,-,large,halal,yes,1005,9750.00
 2025-05-04,test@gmail.com,Jax,First,A2,-,medium,standard,yes,1001,16450.00
+2025-05-05,test@gmail.com,Darius,Business,B1,-,large,standard,yes,1004,15650.00
 2025-05-05,test@gmail.com,Jayce,Economy,A13,-,medium,vegan,yes,1001,16550.00
+2025-05-05,test@gmail.com,Rius,Business,B2,-,large,standard,yes,1004,15650.00
 2025-05-05,test@gmail.com,Jay,Economy,A12,-,medium,vegan,yes,1001,16550.00
 2025-05-05,test@gmail.com,Ryce,Economy,A14,-,medium,vegan,yes,1001,16550.00
+2025-05-05,test@gmail.com,Dius,Business,B3,-,large,standard,yes,1004,15650.00
 2025-05-05,test@gmail.com,Ray,Economy,A15,-,medium,vegan,yes,1001,16550.00
 2025-05-05,korapin.man@gmail.com,Kan,First,B1,-,large,vegan,yes,1006,30750.00
-<<<<<<< HEAD
 2025-05-05,@.com,C3,First,C1,-,large,halal,yes,1004,30750.00
-=======
 2025-05-05,korapin.man@gmail.com,Micky,First,A1,-,large,halal,yes,1009,120750.00
 2025-05-05,@.com,Kan,Economy,B29,-,large,vegan,yes,1002,1130.00
 2025-05-05,@.com,Korapin,First,C3,-,large,halal,no,1002,1360.00
->>>>>>> 771f840a5eca460dd89491cc1151e5d21c5c51a9
-2025-05-06,korapin.man@gmail.com,Korapin,First,A1,-,large,vegan,yes,6021,18316.76
-2025-05-06,korapin.man@gmail.com,Kan,First,A1,-,large,standard,yes,1000,12650.00
-2025-05-06,korapin.man@gmail.com,Pawarut,Economy,H15,-,medium,standard,yes,6210,19430.66
-2025-05-06,korapin.man@gmail.com,Phureeruch,Economy,F6,-,large,halal,yes,6210,19730.66
-2025-05-06,korapin.man@gmail.com,Kawinpob,Economy,C12,-,large,vegan,yes,6210,19730.66
