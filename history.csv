@@ -2,3 +2,10 @@ BookingDate,Email,FirstName,Class,Seat,SpecialRequest,LuggageSize,Meal,Wifi,Flig
 2025-05-04,test@gmail.com,Jax,Business,A1,-,large,halal,yes,1002,10250.00
 2025-05-04,test2@gmail.com,cole,Economy,A7,-,large,halal,yes,1005,9750.00
 2025-05-04,test@gmail.com,Jax,First,A2,-,medium,standard,yes,1001,16450.00
+2025-05-05,test@gmail.com,Darius,Business,B1,-,large,standard,yes,1004,15650.00
+2025-05-05,test@gmail.com,Jayce,Economy,A13,-,medium,vegan,yes,1001,16550.00
+2025-05-05,test@gmail.com,Rius,Business,B2,-,large,standard,yes,1004,15650.00
+2025-05-05,test@gmail.com,Jay,Economy,A12,-,medium,vegan,yes,1001,16550.00
+2025-05-05,test@gmail.com,Ryce,Economy,A14,-,medium,vegan,yes,1001,16550.00
+2025-05-05,test@gmail.com,Dius,Business,B3,-,large,standard,yes,1004,15650.00
+2025-05-05,test@gmail.com,Ray,Economy,A15,-,medium,vegan,yes,1001,16550.00

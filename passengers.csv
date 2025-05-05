@@ -18,3 +18,5 @@ Passenger ID,First Name,Last Name,Gender,Date of Birth,Passport Number,Nationali
 17,cole,Cold,M,2000-08-19,7654,UK,0123456789,test2@gmail.com,A2,1009,Business,-,2025-05-04,medium,halal,yes,
 18,cole,Cold,M,2000-08-30,7654,UK,0123456789,test2@gmail.com,A7,1005,Economy,-,2025-05-04,large,halal,yes,
 19,Jax,Jaximus,M,1990-08-21,5432,Laos,0123456789,test@gmail.com,A2,1001,First,-,2025-05-04,medium,standard,yes,
+20,Darius,Myth,M,1980-05-19,8765,Amarican,0987654321,test@gmail.com,B1,1004,Business,-,2025-05-05,large,standard,yes,
+21,Jayce,Taric,M,2000-01-31,7654,Amarican,1234567890,test@gmail.com,A13,1001,Economy,-,2025-05-05,medium,vegan,yes,
