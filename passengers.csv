@@ -21,3 +21,4 @@ PassengerID,FirstName,LastName,Gender,DOB,Passport,Nationality,Phone,Email,Seat,
 2,Panyakorn,Lohaviboonsap,M,2006-06-08,1002,Thai,0818888888,panyakorn.loha@kmutt.ac.th,F15,1004,Economy,,2025-04-30,medium,standard,yes,
 1,Korapin,Manoprasertkoon,F,2005-07-17,1001,Thai,0819193322,baitoey.her@gmail.com,F16,12345,Economy,-,2025-04-26,Medium,Standard,Yes,None
 22,Kan,Tawan,F,2006-05-21,123456987,TH,08954355113,korapin.man@gmail.com,B1,1006,First,-,2025-05-05,large,vegan,yes,
+23,C3,adsf,F,2828-02-02,klsadjf,alsdjf,20913,@.com,C1,1004,First,-,2025-05-05,large,halal,yes,
