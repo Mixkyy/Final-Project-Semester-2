@@ -855,9 +855,11 @@ void searchFlightRoute(char start[], char destination[], char path[][10], int* p
 
     printf("Enter your departure airport (Example: BKK): ");
     scanf("%s", start);
+    for (int i = 0; start[i]; i++) start[i] = toupper(start[i]);
 
     printf("Enter your destination airport (Example: YYZ): ");
     scanf("%s", destination);
+    for (int i = 0; destination[i]; i++) destination[i] = toupper(destination[i]);
 
     printf("\nFinding shortest route...\n");
 
@@ -1134,7 +1136,7 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
         if (strstr(p.email, "@") && strstr(p.email, ".com")) {
             break;
         } else {
-            printf("Invalid email format. Please include '@' and end with '.com'.\n");
+            printf("Invalid email format.\n");
         }
     } while (1);    
 
@@ -1159,6 +1161,13 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
         int maxRow = (totalSeats + seatsPerRow - 1) / seatsPerRow;
         if (row < 1 || row > maxRow) {
             printf("Invalid seat row '%d'. Must be between 1 and %d.\n", row, maxRow);
+            
+            continue;
+        }
+
+        int seatIndexCheck = (row - 1) * seatsPerRow + (strchr(seatColumns, column) - seatColumns);
+        if (seatIndexCheck >= totalSeats) {
+            printf("Seat %c%d does not exist. Please choose a valid seat.\n", column, row);
             continue;
         }
 
