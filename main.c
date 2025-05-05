@@ -683,7 +683,6 @@ void searchFlightsByDestination() {
         printf("===================================================================\n");
 
         FlightTreeNode* result = searchFlightTree(flightTreeRoot, to);
-
         if (!result) {
             printf("\nNo flights found to %s.\n", to);
             printf("Press Enter to return...");
@@ -695,7 +694,6 @@ void searchFlightsByDestination() {
         if (i > 0 && lastFlightSelected) {
             int durationHours = getFlightDurationHours(path[i - 1], path[i]);
             addHoursToTime(lastArrivalTime, durationHours, expectedArrivalTime);
-
             printf("\nExpected arrival time at %s: %s\n", from, expectedArrivalTime);
             printf("Only showing flights departing after arrival time...\n");
         }
@@ -712,7 +710,6 @@ void searchFlightsByDestination() {
             if (strcmp(f->data.departure, from) == 0 &&
                 strcmp(f->data.destination, to) == 0 &&
                 strcmp(f->data.flight_date, travelDate) == 0) {
-
                 if (i == 0 || isTimeAfterOrEqual(f->data.flight_time, expectedArrivalTime)) {
                     printf("%-8d %-8s %-8s %-12s %-6s %-10s %-12d\n",
                            f->data.flightID, f->data.departure, f->data.destination,
@@ -734,7 +731,6 @@ void searchFlightsByDestination() {
         printf("\nEnter Flight ID to book (0 to cancel): ");
         int selectedFlightID;
         scanf("%d", &selectedFlightID);
-
         if (selectedFlightID == 0) {
             printf("Booking cancelled. Press Enter to return...");
             getchar(); getchar();
@@ -748,7 +744,6 @@ void searchFlightsByDestination() {
                 strcmp(f->data.flight_date, travelDate) == 0 &&
                 strcmp(f->data.departure, from) == 0 &&
                 strcmp(f->data.destination, to) == 0) {
-
                 if (i == 0 || isTimeAfterOrEqual(f->data.flight_time, expectedArrivalTime)) {
                     break;
                 }
@@ -766,7 +761,7 @@ void searchFlightsByDestination() {
         strcpy(lastArrivalTime, f->data.flight_time);
         lastFlightSelected = 1;
 
-        chooseClassAndSeat(f);  // Book seat for this segment
+        chooseClassAndSeat(f); 
     }
 }
 
@@ -943,11 +938,11 @@ int isSeatOccupied(int flightID, const char* classType, const char* seat) {
         if (p->data.flightID == flightID &&
             strcmp(p->data.classType, classType) == 0 &&
             strcmp(p->data.seatNumber, seat) == 0) {
-            return 1;  
+            return 1;
         }
         p = p->next;
     }
-    return 0;  
+    return 0;
 }
 
 // ====================== PAYMENT SUMMARY FUNCTION ==============================
@@ -1221,7 +1216,12 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
             }            
                     
         fclose(pf);
+        PassengerNode* newNode = (PassengerNode*)malloc(sizeof(PassengerNode));
+        newNode->data = p;
+        newNode->next = passengerHead;
+        passengerHead = newNode;
         printf("\nBooking successful! Your Passenger ID is %d\n", p.passengerID);
+
     } else {
         printf("Error: Could not open passengers.csv for writing.\n");
     }
@@ -1322,7 +1322,6 @@ void addFlight() {
     printf("==================================================\n");
     printf("                   ADD FLIGHT                     \n");
     printf("==================================================\n");
-
     Plane planes[100];
     int planeCount = 0;
     loadPlanes(planes, &planeCount);
@@ -1370,11 +1369,41 @@ void addFlight() {
     printf("Enter Flight ID: ");
     scanf("%d", &newNode->data.flightID);
 
-    printf("Enter Departure Airport (Code): ");
-    scanf("%s", newNode->data.departure);
+    const char* validAirports[] = {"BKK", "HKT", "NRT", "SYD", "BER", "GRU", "YYZ"};
+    int isValidAirport = 0;
 
-    printf("Enter Destination Airport (Code): ");
-    scanf("%s", newNode->data.destination);
+    do {
+        printf("Enter Departure Airport (BKK, HKT, NRT, SYD, BER, GRU, YYZ): ");
+        scanf("%s", newNode->data.departure);
+        for (int i = 0; newNode->data.departure[i]; i++) {
+            newNode->data.departure[i] = toupper(newNode->data.departure[i]);
+        }
+        isValidAirport = 0;
+        for (int i = 0; i < 7; i++) {
+            if (strcmp(newNode->data.departure, validAirports[i]) == 0) {
+                isValidAirport = 1;
+                break;
+            }
+        }
+        if (!isValidAirport) printf("Invalid airport code. Try again.\n");
+    } while (!isValidAirport);
+
+    do {
+        printf("Enter Destination Airport (BKK, HKT, NRT, SYD, BER, GRU, YYZ): ");
+        scanf("%s", newNode->data.destination);
+        for (int i = 0; newNode->data.destination[i]; i++) {
+            newNode->data.destination[i] = toupper(newNode->data.destination[i]);
+        }
+        isValidAirport = 0;
+        for (int i = 0; i < 7; i++) {
+            if (strcmp(newNode->data.destination, validAirports[i]) == 0) {
+                isValidAirport = 1;
+                break;
+            }
+        }
+        if (!isValidAirport || strcmp(newNode->data.departure, newNode->data.destination) == 0)
+            printf("Invalid destination (must be valid and different from departure). Try again.\n");
+    } while (!isValidAirport || strcmp(newNode->data.departure, newNode->data.destination) == 0);
 
     do {
         printf("Enter Date (YYYY-MM-DD): ");
@@ -1409,6 +1438,7 @@ void addFlight() {
     printf("\nFlight added successfully! Press Enter to continue...");
     getchar(); getchar();
 }
+
 
 void removeFlight() {
     clearScreen();
@@ -1656,9 +1686,47 @@ void addPassenger() {
     printf("==================================================\n");
     printf("                 ADD PASSENGER                    \n");
     printf("==================================================\n");
-    printf("Press Enter to return...");
-    getchar(); getchar();
+ 
+    FlightNode* ptr = flightHead;
+    int count = 0;
+    printf("%-4s %-10s %-8s %-8s %-12s %-6s %-10s %-12s\n", "No", "FlightID", "From", "To", "Date", "Time", "PlaneID", "Available");
+    printf("-------------------------------------------------------------------------------\n");
+    while (ptr) {
+        printf("%-4d %-10d %-8s %-8s %-12s %-6s %-10s %-12d\n",
+            count + 1, ptr->data.flightID, ptr->data.departure,
+            ptr->data.destination, ptr->data.flight_date,
+            ptr->data.flight_time, ptr->data.airplaneID, ptr->data.seatsAvailable);
+        ptr = ptr->next;
+        count++;
+    }
+
+    if (count == 0) {
+        printf("No flights available. Press Enter...");
+        getchar(); getchar();
+        return;
+    }
+
+    int choice;
+    printf("\nSelect a flight by number (1-%d): ", count);
+    scanf("%d", &choice);
+    getchar();
+
+    if (choice < 1 || choice > count) {
+        printf("Invalid flight selection. Press Enter...");
+        getchar(); getchar();
+        return;
+    }
+
+    // Get selected flight
+    FlightNode* selected = flightHead;
+    for (int i = 1; i < choice; i++) selected = selected->next;
+
+    // Reuse booking UI and seat map logic
+    chooseClassAndSeat(selected);
+
 }
+
+
 
 void removePassenger() {
     clearScreen();
@@ -1683,6 +1751,152 @@ void viewPassengers() {
     printf("==================================================\n");
     printf("                VIEW PASSENGERS                   \n");
     printf("==================================================\n");
-    printf("Press Enter to return...");
-    getchar(); getchar();
+ 
+    if (!passengerHead) {
+        printf("No passengers found.\n");
+        printf("Press Enter to return...");
+        getchar(); getchar();
+        return;
+    }
+
+    // Step 1: Show flights with bookings
+    int shown = 0;
+    FlightNode* f = flightHead;
+    printf("Flights with bookings:\n");
+    printf("%-10s %-8s %-8s %-12s %-6s\n", "FlightID", "From", "To", "Date", "Time");
+    printf("----------------------------------------------------------\n");
+
+    while (f) {
+        PassengerNode* p = passengerHead;
+        int found = 0;
+        while (p) {
+            if (p->data.flightID == f->data.flightID) {
+                found = 1;
+                break;
+            }
+            p = p->next;
+        }
+
+        if (found) {
+            printf("%-10d %-8s %-8s %-12s %-6s\n",
+                   f->data.flightID, f->data.departure,
+                   f->data.destination, f->data.flight_date,
+                   f->data.flight_time);
+            shown++;
+        }
+        f = f->next;
+    }
+
+    if (shown == 0) {
+        printf("\nNo flights with passengers.\n");
+        printf("Press Enter to return...");
+        getchar(); getchar();
+        return;
+    }
+
+    // Step 2: Ask for Flight ID
+    int targetID;
+    printf("\nEnter Flight ID to view passengers: ");
+    scanf("%d", &targetID);
+    getchar();
+
+    // Step 3: Ask sorting preference
+    int sortOption;
+    printf("\nChoose sort option:\n");
+    printf("1. Sort by PassengerID (default)\n");
+    printf("2. Group by Class\n");
+    printf("Enter your choice: ");
+    scanf("%d", &sortOption);
+    getchar();
+
+    // Step 4: Copy matching passengers into a temporary array for sorting
+    PassengerNode* p = passengerHead;
+    Passenger matching[500]; // Max 500 passengers
+    int count = 0;
+
+    while (p) {
+        if (p->data.flightID == targetID) {
+            matching[count++] = p->data;
+        }
+        p = p->next;
+    }
+
+    clearScreen();
+
+    if (count == 0) {
+        printf("No passengers found for Flight ID %d.\n", targetID);
+        printf("\nPress Enter to return...");
+        getchar();
+        return;
+    }
+
+    printf("Total passengers for Flight %d: %d\n", targetID, count);
+
+    // Sort by passengerID before display
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = 0; j < count - i - 1; j++) {
+            if (matching[j].passengerID > matching[j + 1].passengerID) {
+                Passenger temp = matching[j];
+                matching[j] = matching[j + 1];
+                matching[j + 1] = temp;
+            }
+        }
+    }
+
+    if (sortOption == 2) {
+        // Grouped by class: First, Business, Economy
+        const char* classes[] = {"First", "Business", "Economy"};
+        for (int c = 0; c < 3; c++) {
+            int classFound = 0;
+            for (int i = 0; i < count; i++) {
+                if (strcmp(matching[i].classType, classes[c]) == 0) {
+                    classFound = 1;
+                    break;
+                }
+            }
+            if (!classFound) continue;
+
+            printf("\n%s Class Passengers:\n", classes[c]);
+            printf("%-4s %-10s %-20s %-4s %-6s %-12s %-10s %-6s %-30s\n",
+                   "ID", "First", "Last", "Sex", "Seat", "Luggage", "Meal", "Wifi", "Email");
+            printf("--------------------------------------------------------------------------------------------------------\n");
+            for (int i = 0; i < count; i++) {
+                if (strcmp(matching[i].classType, classes[c]) == 0) {
+                    printf("%-4d %-10s %-20s %-4s %-6s %-12s %-10s %-6s %-30s\n",
+                           matching[i].passengerID,
+                           matching[i].firstName,
+                           matching[i].lastName,
+                           matching[i].gender,
+                           matching[i].seatNumber,
+                           matching[i].luggageSize,
+                           matching[i].mealPreference,
+                           matching[i].wifiPreference,
+                           matching[i].email);
+                }
+            }
+        }
+    } else {
+        printf("Passengers for Flight %d:\n", targetID);
+        printf("%-4s %-10s %-20s %-4s %-6s %-8s %-12s %-10s %-6s %-30s\n",
+               "ID", "First", "Last", "Sex", "Seat", "Class", "Luggage", "Meal", "Wifi", "Email");
+        printf("---------------------------------------------------------------------------------------------------------------------------\n");
+
+        for (int i = 0; i < count; i++) {
+            printf("%-4d %-10s %-20s %-4s %-6s %-8s %-12s %-10s %-6s %-30s\n",
+                   matching[i].passengerID,
+                   matching[i].firstName,
+                   matching[i].lastName,
+                   matching[i].gender,
+                   matching[i].seatNumber,
+                   matching[i].classType,
+                   matching[i].luggageSize,
+                   matching[i].mealPreference,
+                   matching[i].wifiPreference,
+                   matching[i].email);
+        }
+    }
+
+    printf("\nPress Enter to return...");
+    getchar();
 }
+
