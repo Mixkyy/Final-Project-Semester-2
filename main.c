@@ -445,6 +445,8 @@ int compareByFlightIDThenDate(const void *a, const void *b) {
 
 void viewHistory(const char *email) {
     clearScreen();
+
+    printf("\nBooking History for: %s\n\n", email);
     
     FILE *fp = fopen("history.csv", "r");
     if (fp == NULL) {
@@ -455,7 +457,7 @@ void viewHistory(const char *email) {
     History records[MAX_RECORDS];
     int count = 0;
     char line[512];
-    fgets(line, sizeof(line), fp); // ข้าม header
+    fgets(line, sizeof(line), fp);
 
     while (fgets(line, sizeof(line), fp)) {
         sscanf(line, "%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%d,%f",
@@ -472,22 +474,23 @@ void viewHistory(const char *email) {
     int found = 0;
     int lastFlightID = -1;
 
-    printf("\n%-12s %-25s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-9s %-8s\n",
-           "Date", "Email", "Name", "Class", "Seat", "Request", "Luggage", "Meal", "Wifi", "FlightID", "Total");
-    printf("---------------------------------------------------------------------------------------------------------------------------------------\n");
+    printf("--------------------------------------------------------------------------------------------------------------\n");
+    printf("%-9s %-12s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-8s\n",
+       "FlightID", "Date", "Name", "Class", "Seat", "Request", "Luggage", "Meal", "Wifi", "Total");
+    printf("--------------------------------------------------------------------------------------------------------------\n");
 
     for (int i = 0; i < count; i++) {
-        if (strcmp(records[i].mail, email) == 0) {
-            // คั่นเฉพาะเมื่อ Flight ID เปลี่ยน
+    if (strcmp(records[i].mail, email) == 0) {
             if (lastFlightID != -1 && records[i].flightID != lastFlightID) {
-                printf("---------------------------------------------------------------------------------------------------------------------------------------\n");
+                printf("--------------------------------------------------------------------------------------------------------------\n");
             }
 
-         printf("%-12s %-25s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-9d %-8.2f\n",
-                   records[i].date, records[i].mail, records[i].name,
-                   records[i].cls, records[i].seat, records[i].req,
-                   records[i].lug, records[i].meal, records[i].wifi,
-                   records[i].flightID, records[i].total);
+         printf("%-9d %-12s %-10s %-8s %-6s %-15s %-12s %-10s %-8s %-8.2f\n",
+       records[i].flightID, records[i].date, records[i].name,
+       records[i].cls, records[i].seat, records[i].req,
+       records[i].lug, records[i].meal, records[i].wifi,
+       records[i].total);
+
 
             lastFlightID = records[i].flightID;
             found = 1;
