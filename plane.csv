@@ -1,7 +1,7 @@
 AirplaneID,AirplaneModel,NumberOfSeats,FirstClassSeats,BusinessClassSeats,EconomyClassSeats,Status
 A001,Boeing 787-9,238,8,30,200,Available
 A002,Airbus A350-900,287,10,24,253,Available
-A003,Boeing 777-300ER,352,12,40,300,Unavailable
+A003,Boeing 777-300ER,352,12,40,300,Available
 A004,Boeing 737-800,189,8,24,157,Available
 A005,Airbus A320,180,4,12,164,Available
 A006,Boeing 777X,320,12,40,268,Available

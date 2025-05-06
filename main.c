@@ -927,9 +927,11 @@ void searchFlightRoute(char start[], char destination[], char path[][10], int* p
 
     printf("Enter your departure airport (Example: BKK): ");
     scanf("%s", start);
+    for (int i = 0; start[i]; i++) start[i] = toupper(start[i]);
 
     printf("Enter your destination airport (Example: YYZ): ");
     scanf("%s", destination);
+    for (int i = 0; destination[i]; i++) destination[i] = toupper(destination[i]);
 
     printf("\nFinding shortest route...\n");
 
@@ -992,17 +994,17 @@ void chooseClassAndSeat(FlightNode* chosenFlight) {
         case 1:
             strcpy(classType, "First");
             totalSeats = chosenFlight->data.firstClassSeats;
-            seatsPerRow = 4; // Example: First Class usually 1-2-1 or 2-2
+            seatsPerRow = 4; 
             break;
         case 2:
             strcpy(classType, "Business");
             totalSeats = chosenFlight->data.businessClassSeats;
-            seatsPerRow = 6; // Example: Business Class 2-2-2
+            seatsPerRow = 6; 
             break;
         case 3:
             strcpy(classType, "Economy");
             totalSeats = chosenFlight->data.economyClassSeats;
-            seatsPerRow = 9; // Example: Economy Class 3-3-3
+            seatsPerRow = 9; 
             break;
         default:
             printf("\nInvalid choice. Press Enter to return...");
@@ -1261,27 +1263,51 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
     do {
         printf("Enter your luggage size (carry-on, medium, large): ");
         scanf("%s", p.luggageSize);
-        if (strcmp(p.luggageSize, "carry-on") != 0 && strcmp(p.luggageSize, "medium") != 0 && strcmp(p.luggageSize, "large") != 0) {
+    
+        // Convert to lowercase for uniform comparison
+        for (int i = 0; p.luggageSize[i]; i++) {
+            p.luggageSize[i] = tolower(p.luggageSize[i]);
+        }
+    
+        if (strcmp(p.luggageSize, "carry-on") != 0 &&
+            strcmp(p.luggageSize, "medium") != 0 &&
+            strcmp(p.luggageSize, "large") != 0) {
             printf("Invalid size. Choose from carry-on, medium, large.\n");
         }
-    } while (strcmp(p.luggageSize, "carry-on") != 0 && strcmp(p.luggageSize, "medium") != 0 && strcmp(p.luggageSize, "large") != 0);
-
+    } while (strcmp(p.luggageSize, "carry-on") != 0 &&
+             strcmp(p.luggageSize, "medium") != 0 &&
+             strcmp(p.luggageSize, "large") != 0);
+    
     do {
         printf("Enter your meal preference (standard, vegan, halal): ");
         scanf("%s", p.mealPreference);
-        if (strcmp(p.mealPreference, "standard") != 0 && strcmp(p.mealPreference, "vegan") != 0 && strcmp(p.mealPreference, "halal") != 0) {
+
+        for (int i = 0; p.mealPreference[i]; i++) {
+            p.mealPreference[i] = tolower(p.mealPreference[i]);
+        }
+    
+        if (strcmp(p.mealPreference, "standard") != 0 &&
+            strcmp(p.mealPreference, "vegan") != 0 &&
+            strcmp(p.mealPreference, "halal") != 0) {
             printf("Invalid option. Choose from standard, vegan, halal.\n");
         }
-    } while (strcmp(p.mealPreference, "standard") != 0 && strcmp(p.mealPreference, "vegan") != 0 && strcmp(p.mealPreference, "halal") != 0);
-
+    } while (strcmp(p.mealPreference, "standard") != 0 &&
+             strcmp(p.mealPreference, "vegan") != 0 &&
+             strcmp(p.mealPreference, "halal") != 0);
+    
     do {
         printf("Do you want wifi on this flight? (yes/no): ");
         scanf("%s", p.wifiPreference);
-        if (strcmp(p.wifiPreference, "yes") != 0 && strcmp(p.wifiPreference, "no") != 0) {
-            printf("Please enter 'yes' or 'no'.\n");
-        }
-    } while (strcmp(p.wifiPreference, "yes") != 0 && strcmp(p.wifiPreference, "no") != 0);
 
+        for (int i = 0; p.wifiPreference[i]; i++) {
+                p.wifiPreference[i] = tolower(p.wifiPreference[i]);
+            }
+            
+        if (strcmp(p.wifiPreference, "yes") != 0 && strcmp(p.wifiPreference, "no") != 0) {
+                printf("Please enter 'yes' or 'no'.\n");
+            }
+        } while (strcmp(p.wifiPreference, "yes") != 0 && strcmp(p.wifiPreference, "no") != 0);
+            
     printf("Any special assistance needed? (press Enter to skip): ");
     getchar();
     fgets(p.specialAssistance, sizeof(p.specialAssistance), stdin);
