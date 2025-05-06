@@ -4,3 +4,8 @@ A002,Airbus A350-900,287,10,24,253,Available
 A003,Boeing 777-300ER,352,12,40,300,Unavailable
 A004,Boeing 737-800,189,8,24,157,Available
 A005,Airbus A320,180,4,12,164,Available
+A006,Boeing 777X,320,12,40,268,Available
+A007,Airbus A330-900neo,287,8,36,243,Available
+A008,Boeing 757-300,243,6,30,207,Available
+A009,Airbus A310,280,10,28,242,Available
+A010,McDonnell Douglas MD-11,293,8,34,251,Available
