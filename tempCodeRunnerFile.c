@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -2399,3 +2400,6 @@ void viewPassengers() {
     getchar();
 }
 
+=======
+Str
+>>>>>>> 591d6a1cc79482b1f15575cdacba570a7970a56c
