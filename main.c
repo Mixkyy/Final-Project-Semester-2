@@ -1227,7 +1227,7 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
         if (strstr(p.email, "@") && strstr(p.email, ".com")) {
             break;
         } else {
-            printf("Invalid email format. Please include '@' and end with '.com'.\n");
+            printf("Invalid email format. \n");
         }
     } while (1);    
 
