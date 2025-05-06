@@ -1238,7 +1238,7 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType, int deferredBo
         if (strstr(p.email, "@") && strstr(p.email, ".com")) {
             break;
         } else {
-            printf("Invalid email format. \n");
+            printf("Invalid email format. Please include '@' and end with '.com'.\n");
         }
     } while (1);    
 
@@ -1561,20 +1561,6 @@ do {
     }
 
 } while (!validFlightID);
-
-    clearScreen();
-    printf("Flight ID : %s", flightIDStr);
-    printf("Available airports:\n\n");
-    printf(" CODE   %-35s %-15s %-10s\n", "AIRPORT NAME", "CITY", "COUNTRY");
-    printf("-------------------------------------------------------------------\n");
-    printf(" BKK    %-35s %-15s %-10s\n", "Suvarnabhumi Airport", "Bangkok", "Thailand");
-    printf(" HKT    %-35s %-15s %-10s\n", "Phuket International Airport", "Phuket", "Thailand");
-    printf(" SYD    %-35s %-15s %-10s\n", "Sydney Kingsford Smith Airport", "Sydney", "Australia");
-    printf(" NRT    %-35s %-15s %-10s\n", "Narita International Airport", "Tokyo", "Japan");
-    printf(" GRU    %-35s %-15s %-10s\n", "Sao Paulo/Guarulhos Int'l", "Sao Paulo", "Brazil");
-    printf(" BER    %-35s %-15s %-10s\n", "Berlin Brandenburg Airport", "Berlin", "Germany");
-    printf(" YYZ    %-35s %-15s %-10s\n\n", "Toronto Pearson Int'l Airport", "Toronto", "Canada");
-    printf("-------------------------------------------------------------------\n");
 
     const char* validAirports[] = {"BKK", "HKT", "NRT", "SYD", "BER", "GRU", "YYZ"};
     int isValidAirport = 0;
@@ -2517,4 +2503,3 @@ void viewPassengers() {
     printf("\nPress Enter to return...");
     getchar();
 }
-
