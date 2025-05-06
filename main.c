@@ -109,8 +109,8 @@ void initializeAirport(const char* code);
 Airport* findAirport(const char* code);
 void addConnection(const char* from, const char* to, int distanceKM);
 void searchFlightsByDestination();
-void chooseClassAndSeat(FlightNode* chosenFlight, Passenger* outPassenger, int deferredBooking);
-void initializeSeatMap(FlightNode* chosenFlight, char* classType, int deferredBooking);
+void chooseClassAndSeat(FlightNode* chosenFlight);
+void initializeSeatMap(FlightNode* chosenFlight, char* classType);
 int dijkstra(const char* start, const char* end, char path[][10], int* pathLength);
 void searchFlightRoute(char start[], char destination[], char path[][10], int* pathLength);
 void viewHistory(const char *email);
@@ -836,8 +836,7 @@ void searchFlightsByDestination() {
         strcpy(lastArrivalTime, f->data.flight_time);
         lastFlightSelected = 1;
 
-        Passenger tempPassenger;
-        chooseClassAndSeat(f, &tempPassenger, (pathLength > 2));
+        chooseClassAndSeat(f); 
     }
 }
 
@@ -965,8 +964,7 @@ void searchFlightRoute(char start[], char destination[], char path[][10], int* p
 
 // ===================== CHOOSE CLASS AND SEAT =====================
 
-void chooseClassAndSeat(FlightNode* chosenFlight, Passenger* outPassenger, int deferredBooking)
- {
+void chooseClassAndSeat(FlightNode* chosenFlight) {
     // Fix: redirect to the real flight node in flightHead
     FlightNode* realFlight = flightHead;
     while (realFlight) {
@@ -976,21 +974,13 @@ void chooseClassAndSeat(FlightNode* chosenFlight, Passenger* outPassenger, int d
         }
         realFlight = realFlight->next;
     }
-    int durationHours = getFlightDurationHours(chosenFlight->data.departure, chosenFlight->data.destination);
-    int choice;
+
     clearScreen();
-    printf("===================================================================\n");
-    printf("                        FLIGHT INFORMATION                           \n");
-    printf("===================================================================\n");
-    printf(" Flight ID      : %d\n", chosenFlight->data.flightID);
-    printf(" From           : %s\n", chosenFlight->data.departure);
-    printf(" To             : %s\n", chosenFlight->data.destination);
-    printf(" Flight Date    : %s\n", chosenFlight->data.flight_date);
-    printf(" Departure Time : %s\n", chosenFlight->data.flight_time);
-    printf(" Duration       : %d hour%s\n", durationHours, durationHours > 1 ? "s" : "");
     printf("===================================================================\n");
     printf("                        SELECT CLASS TYPE                           \n");
     printf("===================================================================\n");
+    printf("                        Flight ID: %d\n", chosenFlight->data.flightID);
+    int choice;
     printf("1. First Class\n");
     printf("2. Business Class\n");
     printf("3. Economy Class\n");
@@ -1033,7 +1023,7 @@ void chooseClassAndSeat(FlightNode* chosenFlight, Passenger* outPassenger, int d
 
     seatRows = (totalSeats + seatsPerRow - 1) / seatsPerRow; 
 
-    initializeSeatMap(chosenFlight, classType, deferredBooking);
+    initializeSeatMap(chosenFlight, classType);
 }
 
 // ========= CHECK FOR OCCUPIED SEAT ==========
@@ -1109,8 +1099,7 @@ float calculateTotal(Passenger p) {
 
 // ==================== INITIALIZE SEAT MAP ==============================
 
-void initializeSeatMap(FlightNode* chosenFlight, char* classType, int deferredBooking)
- {
+void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
     clearScreen();
     printf("===================================================================\n");
     printf("                      SEAT MAP - %s CLASS                           \n", classType);
@@ -1238,7 +1227,7 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType, int deferredBo
         if (strstr(p.email, "@") && strstr(p.email, ".com")) {
             break;
         } else {
-            printf("Invalid email format. Please include '@' and end with '.com'.\n");
+            printf("Invalid email format. \n");
         }
     } while (1);    
 
@@ -1349,17 +1338,15 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType, int deferredBo
 
     strcpy(p.specialRequest, "-");
 
-    if (!deferredBooking) {
-        displayPaymentSummary(p, chosenFlight->data);
-    
-        char confirm;
-        scanf(" %c", &confirm);
-        if (tolower(confirm) != 'y') {
-            printf("Payment cancelled. Press Enter to return...");
-            getchar(); getchar();
-            return;
-        }
-    }    
+    displayPaymentSummary(p, chosenFlight->data);
+
+    char confirm;
+    scanf(" %c", &confirm);
+    if (tolower(confirm) != 'y') {
+        printf("Payment cancelled. Press Enter to return...");
+        getchar(); getchar();
+        return;
+    }
     
     FILE *pf = fopen("passengers.csv", "a");
     if (pf) {
@@ -1561,6 +1548,20 @@ do {
     }
 
 } while (!validFlightID);
+
+    clearScreen();
+    printf("Flight ID : %s", flightIDStr);
+    printf("Available airports:\n\n");
+    printf(" CODE   %-35s %-15s %-10s\n", "AIRPORT NAME", "CITY", "COUNTRY");
+    printf("-------------------------------------------------------------------\n");
+    printf(" BKK    %-35s %-15s %-10s\n", "Suvarnabhumi Airport", "Bangkok", "Thailand");
+    printf(" HKT    %-35s %-15s %-10s\n", "Phuket International Airport", "Phuket", "Thailand");
+    printf(" SYD    %-35s %-15s %-10s\n", "Sydney Kingsford Smith Airport", "Sydney", "Australia");
+    printf(" NRT    %-35s %-15s %-10s\n", "Narita International Airport", "Tokyo", "Japan");
+    printf(" GRU    %-35s %-15s %-10s\n", "Sao Paulo/Guarulhos Int'l", "Sao Paulo", "Brazil");
+    printf(" BER    %-35s %-15s %-10s\n", "Berlin Brandenburg Airport", "Berlin", "Germany");
+    printf(" YYZ    %-35s %-15s %-10s\n\n", "Toronto Pearson Int'l Airport", "Toronto", "Canada");
+    printf("-------------------------------------------------------------------\n");
 
     const char* validAirports[] = {"BKK", "HKT", "NRT", "SYD", "BER", "GRU", "YYZ"};
     int isValidAirport = 0;
@@ -1960,8 +1961,8 @@ void addPassenger() {
     for (int i = 1; i < choice; i++) selected = selected->next;
 
     // Reuse booking UI and seat map logic
-    Passenger tempPassenger;
-    chooseClassAndSeat(selected, &tempPassenger, 0);  
+    chooseClassAndSeat(selected);
+
 }
 
 void removePassenger() {

@@ -1,1 +1,1 @@
-toupper
+strcp
