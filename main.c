@@ -1089,8 +1089,8 @@ void displayPaymentSummary(Passenger p, Flight f) {
 
 float calculateTotal(Passenger p) {
     float multiplier = 1.0;
-    if (strcmp(p.classType, "Business") == 0) multiplier = 1.5;
-    else if (strcmp(p.classType, "First") == 0) multiplier = 2.0;
+    if (strcmp(p.classType, "Business") == 0) multiplier = 5.0;
+    else if (strcmp(p.classType, "First") == 0) multiplier = 12.0;
     float base = p.price * multiplier;
 
     float wifiFee = (strcmp(p.wifiPreference, "yes") == 0) ? WIFI_FEE : 0;
