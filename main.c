@@ -1734,6 +1734,18 @@ void removeFlight() {
     getchar(); getchar();
 }
 
+int isDirectConnection(const char* from, const char* to) {
+    Airport* airport = findAirport(from);
+    if (!airport) return 0;
+
+    Connection* conn = airport->connections;
+    while (conn) {
+        if (strcmp(conn->destinationCode, to) == 0)
+            return 1;
+        conn = conn->next;
+    }
+    return 0;
+}
 
 void editFlight() {
     clearScreen();
@@ -1797,62 +1809,72 @@ void editFlight() {
             
                 char input[100];
 
-                // Change Destination
-                printf("Enter new Destination or press Enter to keep [%s]: ", current->data.destination);
+    // Change Destination (only if directly connected)
+    // Change Destination (repeat until valid or Enter)
+    while (1) {
+        printf("Enter new Destination or press Enter to keep [%s]: ", current->data.destination);
+            fgets(input, sizeof(input), stdin);
+            input[strcspn(input, "\n")] = 0; 
+                if (strlen(input) == 0) {
+                    break;  
+                }
+                for (int i = 0; input[i]; i++) {
+                    input[i] = toupper(input[i]);
+                }
+                if (isDirectConnection(current->data.departure, input)) {
+                    strcpy(current->data.destination, input);
+                    break;  // Valid destination
+                } else {
+                    printf("✘ Error: '%s' is not a direct connection from '%s'. Please enter a valid connected airport.\n", input, current->data.departure);
+                }
+            }
+
+            // Change Airplane
+            Plane planes[100];
+            int planeCount = 0;
+            loadPlanes(planes, &planeCount);
+    
+            printf("\n%-4s %-12s %-25s %-8s %-10s %-8s\n", "No.", "AirplaneID", "Model", "First", "Business", "Economy");
+            printf("-------------------------------------------------------------------------------\n");
+            for (int i = 0; i < planeCount; i++) {
+                if (strcmp(planes[i].status, "Available") == 0) {
+                    printf("%-4d %-12s %-25s %-8d %-10d %-8d\n",
+                        i + 1, planes[i].airplaneID, planes[i].model,
+                        planes[i].firstClassSeats, planes[i].businessClassSeats, planes[i].economyClassSeats);
+                }
+            }
+            int planeChoice;
+            printf("\nSelect new plane number or press 0 to keep current: ");
+            scanf("%d", &planeChoice);
+            getchar();
+            if (planeChoice > 0 && planeChoice <= planeCount && strcmp(planes[planeChoice - 1].status, "Available") == 0) {
+                Plane chosen = planes[planeChoice - 1];
+                strcpy(current->data.airplaneID, chosen.airplaneID);
+                strcpy(current->data.airplaneModel, chosen.model);
+                current->data.firstClassSeats = chosen.firstClassSeats;
+                current->data.businessClassSeats = chosen.businessClassSeats;
+                current->data.economyClassSeats = chosen.economyClassSeats;
+                current->data.capacity = chosen.totalSeats;
+                current->data.seatsAvailable = chosen.totalSeats; // reset availability
+            }
+    
+            getchar(); 
+            do {
+                printf("\nEnter new Date (YYYY-MM-DD) or press Enter to keep [%s]: ", current->data.flight_date);
                 fgets(input, sizeof(input), stdin);
                 if (input[0] != '\n') {
                     input[strcspn(input, "\n")] = 0;
-                    if (strlen(input) > 0) strcpy(current->data.destination, input);
-                }
-    
-                // Change Airplane
-                Plane planes[100];
-                int planeCount = 0;
-                loadPlanes(planes, &planeCount);
-    
-                printf("\n%-4s %-12s %-25s %-8s %-10s %-8s\n", "No.", "AirplaneID", "Model", "First", "Business", "Economy");
-                printf("-------------------------------------------------------------------------------\n");
-                for (int i = 0; i < planeCount; i++) {
-                    if (strcmp(planes[i].status, "Available") == 0) {
-                        printf("%-4d %-12s %-25s %-8d %-10d %-8d\n",
-                            i + 1, planes[i].airplaneID, planes[i].model,
-                            planes[i].firstClassSeats, planes[i].businessClassSeats, planes[i].economyClassSeats);
-                    }
-                }
-                int planeChoice;
-                printf("\nSelect new plane number or press 0 to keep current: ");
-                scanf("%d", &planeChoice);
-                getchar();
-                if (planeChoice > 0 && planeChoice <= planeCount && strcmp(planes[planeChoice - 1].status, "Available") == 0) {
-                    Plane chosen = planes[planeChoice - 1];
-                    strcpy(current->data.airplaneID, chosen.airplaneID);
-                    strcpy(current->data.airplaneModel, chosen.model);
-                    current->data.firstClassSeats = chosen.firstClassSeats;
-                    current->data.businessClassSeats = chosen.businessClassSeats;
-                    current->data.economyClassSeats = chosen.economyClassSeats;
-                    current->data.capacity = chosen.totalSeats;
-                    current->data.seatsAvailable = chosen.totalSeats; // reset availability
-                }
-    
-                getchar(); // flush
-                // Edit date
-                do {
-                    printf("\nEnter new Date (YYYY-MM-DD) or press Enter to keep [%s]: ", current->data.flight_date);
-                    fgets(input, sizeof(input), stdin);
-                    if (input[0] != '\n') {
-                        input[strcspn(input, "\n")] = 0;
-                        if (isValidDate(input)) {
-                            strcpy(current->data.flight_date, input);
-                            break;
-                        } else {
-                            printf("Invalid date. Try again.\n");
-                        }
-                    } else {
+                    if (isValidDate(input)) {
+                        strcpy(current->data.flight_date, input);
                         break;
+                    } else {
+                        printf("Invalid date. Try again.\n");
                     }
-                } while (1);
+                } else {
+                    break;
+                }
+            } while (1);
     
-                // Edit time
                 do {
                     printf("Enter new Time (HH:MM) or press Enter to keep [%s]: ", current->data.flight_time);
                     fgets(input, sizeof(input), stdin);
