@@ -25,7 +25,6 @@ PassengerID,FirstName,LastName,Gender,DOB,PassportNumber,Nationality,PhoneNumber
 5023,Jessica,Williams,F,2016-12-20,P8276282,Canada,0835949229,jessica.williams@mail.com,D6,6209,Economy,None,2025-05-08,Large,Halal,Yes,Need help with boarding
 5024,John,Brown,M,2019-06-05,P3364624,Brazil,0865529911,john.brown@mail.com,B4,6209,Economy,Window seat,2025-05-01,Large,Vegan,No,Need help with boarding
 5025,Michael,Smith,M,1997-02-07,P4753454,Thailand,0858751618,michael.smith@mail.com,A11,6209,Business,Vegetarian Meal,2025-05-01,Medium,Vegan,Yes,
-5026,John,Smith,M,1989-05-14,P3165769,Germany,0856453952,john.smith@mail.com,D19,6209,First,Window seat,2025-05-04,Carry-On,Halal,No,
 5027,Elizabeth,Williams,F,2002-10-25,P8139591,Japan,0850298356,elizabeth.williams@mail.com,B40,6209,Economy,Window seat,2025-05-05,Large,Standard,No,Need help with boarding
 5028,Michael,Williams,M,2000-03-21,P1331563,Thailand,0870875096,michael.williams@mail.com,A16,6209,First,Window seat,2025-05-11,Large,Vegan,Yes,
 5029,Susan,Brown,F,1993-12-23,P3673503,Japan,0815315308,susan.brown@mail.com,E6,6209,Business,None,2025-05-03,Carry-On,Standard,No,Need help with boarding
@@ -41,7 +40,6 @@ PassengerID,FirstName,LastName,Gender,DOB,PassportNumber,Nationality,PhoneNumber
 5039,Jessica,Brown,F,2009-06-08,P4861594,Canada,0842691700,jessica.brown@mail.com,E12,6209,Economy,Vegetarian Meal,2025-05-09,Carry-On,Vegan,No,Need help with boarding
 5040,John,Brown,M,2018-02-21,P3794544,Brazil,0885914598,john.brown@mail.com,B4,6209,First,None,2025-05-05,Carry-On,Halal,No,
 5041,Elizabeth,Johnson,F,1997-03-27,P2603315,Canada,0837992799,elizabeth.johnson@mail.com,A1,6209,First,Wheelchair,2025-05-08,Carry-On,Halal,Yes,Hearing impaired support
-5042,James,Johnson,M,2000-12-22,P2285501,Germany,0830548128,james.johnson@mail.com,A24,6209,Business,Vegetarian Meal,2025-05-05,Large,Standard,Yes,Need help with boarding
 5043,Mary,Brown,F,1997-08-20,P4881620,Canada,0871321396,mary.brown@mail.com,C1,6209,Business,Wheelchair,2025-05-09,Large,Vegan,No,Hearing impaired support
 5044,Elizabeth,Brown,F,1992-10-06,P7244337,Canada,0825111962,elizabeth.brown@mail.com,E29,6209,First,Window seat,2025-05-02,Large,Standard,No,
 5045,William,Johnson,M,2015-06-19,P8194576,Germany,0842989220,william.johnson@mail.com,A14,6123,Economy,Window seat,2025-05-06,Medium,Vegan,Yes,Need help with boarding
@@ -82,7 +80,7 @@ PassengerID,FirstName,LastName,Gender,DOB,PassportNumber,Nationality,PhoneNumber
 5080,James,Brown,M,2009-11-24,P7380343,Japan,0895200059,james.brown@mail.com,E18,6128,First,Wheelchair,2025-05-07,Medium,Halal,No,
 5081,Jessica,Smith,F,2010-01-18,P3011122,Japan,0811792838,jessica.smith@mail.com,D36,6128,Business,None,2025-05-05,Medium,Halal,No,Hearing impaired support
 5082,Mary,Williams,F,2023-05-23,P6106436,Japan,0874411661,mary.williams@mail.com,C24,6128,Business,None,2025-05-07,Carry-On,Vegan,Yes,Hearing impaired support
-5083,James,Johnson,M,2000-03-28,P2865342,Thailand,0831373631,james.johnson@mail.com,B16,6128,Business,Vegetarian Meal,2025-05-08,Large,Halal,Yes,Hearing impaired support
+5083,James,Johnson,M,2000-03-28,P2865342,Thailand,0831373631,james.6024johnson@mail.com,B16,6128,Business,Vegetarian Meal,2025-05-08,Large,Halal,Yes,Hearing impaired support
 5084,Susan,Williams,F,1989-06-17,P8064345,Germany,0868072127,susan.williams@mail.com,E2,6128,Business,Vegetarian Meal,2025-05-02,Medium,Standard,Yes,Need help with boarding
 5085,Robert,Williams,M,2006-04-23,P7069934,Canada,0888718018,robert.williams@mail.com,E17,6128,Economy,Wheelchair,2025-05-01,Large,Halal,No,Need help with boarding
 5086,Susan,Williams,F,1990-03-14,P6468376,Brazil,0871955885,susan.williams@mail.com,F14,6128,Economy,Window seat,2025-05-06,Medium,Halal,No,Need help with boarding
@@ -104,7 +102,6 @@ PassengerID,FirstName,LastName,Gender,DOB,PassportNumber,Nationality,PhoneNumber
 5102,Mary,Johnson,F,2014-04-14,P7372066,Thailand,0847233872,mary.johnson@mail.com,B18,6115,Business,None,2025-05-11,Medium,Vegan,No,
 5103,Michael,Smith,M,1989-07-12,P8032055,Germany,0829931107,michael.smith@mail.com,E20,6115,First,None,2025-05-06,Large,Halal,No,Need help with boarding
 5104,Mary,Williams,F,2016-11-02,P1005432,Japan,0860146752,mary.williams@mail.com,B28,6115,Business,Vegetarian Meal,2025-05-02,Medium,Halal,No,Need help with boarding
-5105,Susan,Johnson,F,2007-06-22,P9662361,Brazil,0869832183,susan.johnson@mail.com,D35,6115,Economy,Vegetarian Meal,2025-05-05,Large,Standard,No,
 5106,Elizabeth,Williams,F,1991-11-03,P4289315,Canada,0867587687,elizabeth.williams@mail.com,A2,6115,First,Wheelchair,2025-05-06,Carry-On,Halal,Yes,
 5107,Elizabeth,Jones,F,1991-10-23,P8680698,Japan,0881864462,elizabeth.jones@mail.com,E2,6115,Business,Wheelchair,2025-05-01,Large,Halal,No,Need help with boarding
 5108,William,Johnson,M,2010-05-07,P3674233,Thailand,0816166337,william.johnson@mail.com,F10,6115,First,Vegetarian Meal,2025-05-07,Large,Standard,Yes,Hearing impaired support
@@ -143,7 +140,6 @@ PassengerID,FirstName,LastName,Gender,DOB,PassportNumber,Nationality,PhoneNumber
 5141,Jessica,Brown,F,2017-10-09,P6171373,Brazil,0899373508,jessica.brown@mail.com,C23,6241,Economy,Window seat,2025-05-08,Carry-On,Halal,No,Hearing impaired support
 5142,Elizabeth,Smith,F,2010-09-30,P8263836,Germany,0822963198,elizabeth.smith@mail.com,E35,6241,Business,Wheelchair,2025-05-01,Carry-On,Vegan,No,Hearing impaired support
 5143,Linda,Smith,F,2000-09-17,P5985836,Japan,0885489165,linda.smith@mail.com,D12,6241,Economy,None,2025-05-09,Large,Vegan,Yes,Need help with boarding
-5144,Elizabeth,Jones,F,2013-07-23,P8916680,Germany,0820549948,elizabeth.jones@mail.com,B22,6241,Business,Vegetarian Meal,2025-05-05,Medium,Vegan,No,Hearing impaired support
 5145,Linda,Johnson,F,2022-08-01,P9746913,Brazil,0826709386,linda.johnson@mail.com,A39,6241,Business,Wheelchair,2025-05-06,Large,Vegan,Yes,Hearing impaired support
 5146,Michael,Williams,M,1995-08-20,P5272783,Germany,0894032058,michael.williams@mail.com,C11,6241,First,Window seat,2025-05-10,Medium,Standard,Yes,Hearing impaired support
 5147,Michael,Brown,M,2000-02-11,P8358498,Brazil,0824589535,michael.brown@mail.com,F2,6241,First,Wheelchair,2025-05-03,Large,Standard,No,Hearing impaired support
@@ -163,7 +159,6 @@ PassengerID,FirstName,LastName,Gender,DOB,PassportNumber,Nationality,PhoneNumber
 5161,Robert,Brown,M,2014-08-31,P4272536,Canada,0827510785,robert.brown@mail.com,F40,6024,Economy,Wheelchair,2025-05-10,Carry-On,Standard,Yes,Need help with boarding
 5162,Robert,Johnson,M,1991-07-05,P2174117,Canada,0817989536,robert.johnson@mail.com,D32,6024,Business,Vegetarian Meal,2025-05-01,Medium,Vegan,No,Need help with boarding
 5163,Michael,Brown,M,2020-01-01,P7709338,Thailand,0858457038,michael.brown@mail.com,D28,6024,Business,None,2025-05-05,Carry-On,Standard,Yes,Need help with boarding
-5164,James,Williams,M,2003-08-05,P2949010,Thailand,0818018780,james.williams@mail.com,F26,6024,First,Window seat,2025-05-09,Carry-On,Vegan,Yes,
 5165,John,Williams,M,2024-09-22,P1002100,Japan,0833911290,john.williams@mail.com,C2,6053,Business,Wheelchair,2025-05-09,Large,Standard,Yes,Hearing impaired support
 5166,Linda,Jones,F,1997-04-23,P4221117,Germany,0889156543,linda.jones@mail.com,E12,6053,First,None,2025-05-10,Large,Standard,No,Need help with boarding
 5167,Linda,Williams,F,1998-03-20,P9549590,Brazil,0894068150,linda.williams@mail.com,D29,6053,First,Window seat,2025-05-01,Carry-On,Standard,No,Hearing impaired support
@@ -204,4 +199,9 @@ PassengerID,FirstName,LastName,Gender,DOB,PassportNumber,Nationality,PhoneNumber
 5202,William,Smith,M,2016-02-05,P6292986,Germany,0847594974,william.smith@mail.com,C35,6067,Economy,None,2025-05-02,Medium,Halal,Yes,Need help with boarding
 5203,John,Williams,M,2011-03-02,P5304416,Thailand,0827211469,john.williams@mail.com,A28,6067,Business,None,2025-05-11,Large,Halal,Yes,
 5204,James,Smith,M,1993-10-28,P4923214,Brazil,0858382166,james.smith@mail.com,D30,6067,Business,Wheelchair,2025-05-06,Carry-On,Halal,Yes,
+<<<<<<< HEAD
 5205,asdf,asdf,F,2000-02-02,sdaf,sdaf,412321,@.com,A1,6026,Economy,-,2025-05-06,large,halal,no,
+=======
+5205,Korapin,Manoprasertkoon,F,2005-07-17,133791,TH,0836964551,korapin.man@gmail.com,I1,6128,Economy,-,2025-05-06,large,vegan,yes,
+5206,Suwapich,Manoprasertkoon,F,2003-02-06,649051,TH,0696915145,korapin.man@gmai.com,H1,6128,Economy,-,2025-05-06,medium,halal,yes,
+>>>>>>> 3c0441499054d3f32698aa080179bc6dd7eefd75
