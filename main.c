@@ -1243,6 +1243,13 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
             printf("Invalid seat row '%d'. Must be between 1 and %d.\n", row, maxRow);
             continue;
         }
+        int colIndex = strchr(seatColumns, column) - seatColumns;
+        int seatPos = (row - 1) * seatsPerRow + colIndex;
+
+        if (seatPos >= totalSeats) {
+            printf("Seat %c%d does not exist in this class. Please choose a valid seat.\n", column, row);
+            continue;
+        }
 
         if (isSeatOccupied(chosenFlight->data.flightID, classType, p.seatNumber)) {
             printf("Seat %s is already occupied. Please choose another seat.\n", p.seatNumber);
