@@ -974,13 +974,22 @@ void chooseClassAndSeat(FlightNode* chosenFlight) {
         }
         realFlight = realFlight->next;
     }
-
     clearScreen();
+    int durationHours = getFlightDurationHours(chosenFlight->data.departure, chosenFlight->data.destination);
+    int choice;
+    clearScreen();
+    printf("===================================================================\n");
+    printf("                        FLIGHT INFORMATION                           \n");
+    printf("===================================================================\n");
+    printf(" Flight ID      : %d\n", chosenFlight->data.flightID);
+    printf(" From           : %s\n", chosenFlight->data.departure);
+    printf(" To             : %s\n", chosenFlight->data.destination);
+    printf(" Flight Date    : %s\n", chosenFlight->data.flight_date);
+    printf(" Departure Time : %s\n", chosenFlight->data.flight_time);
+    printf(" Duration       : %d hour%s\n", durationHours, durationHours > 1 ? "s" : "");
     printf("===================================================================\n");
     printf("                        SELECT CLASS TYPE                           \n");
     printf("===================================================================\n");
-    printf("                        Flight ID: %d\n", chosenFlight->data.flightID);
-    int choice;
     printf("1. First Class\n");
     printf("2. Business Class\n");
     printf("3. Economy Class\n");
@@ -1235,40 +1244,46 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
     do {
         printf("Enter your desired seat number (e.g., A1, B3): ");
         scanf("%s", p.seatNumber);
-
+    
         char column;
         int row;
         if (sscanf(p.seatNumber, "%c%d", &column, &row) != 2) {
             printf("Invalid format. Use format like A1, B2, etc.\n");
             continue;
         }
-
-        column = toupper(column);
+    
+        // Reject lowercase column
+        if (!isupper(column)) {
+            printf("Seat column must be uppercase (e.g., A1, B2). You entered: %s\n", p.seatNumber);
+            continue;
+        }
+    
         if (strchr(seatColumns, column) == NULL) {
             printf("Invalid seat column '%c'. Must be one of [%s].\n", column, seatColumns);
             continue;
         }
-
+    
         int maxRow = (totalSeats + seatsPerRow - 1) / seatsPerRow;
         if (row < 1 || row > maxRow) {
             printf("Invalid seat row '%d'. Must be between 1 and %d.\n", row, maxRow);
             continue;
         }
+    
         int colIndex = strchr(seatColumns, column) - seatColumns;
         int seatPos = (row - 1) * seatsPerRow + colIndex;
-
+    
         if (seatPos >= totalSeats) {
             printf("Seat %c%d does not exist in this class. Please choose a valid seat.\n", column, row);
             continue;
         }
-
+    
         if (isSeatOccupied(chosenFlight->data.flightID, classType, p.seatNumber)) {
             printf("Seat %s is already occupied. Please choose another seat.\n", p.seatNumber);
         } else {
             validSeat = 1;
         }
     } while (!validSeat);
-
+    
     do {
         printf("Enter your luggage size (carry-on, medium, large): ");
         scanf("%s", p.luggageSize);
