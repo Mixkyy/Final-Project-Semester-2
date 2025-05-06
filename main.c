@@ -1493,8 +1493,26 @@ void addFlight() {
 
     FlightNode* newNode = (FlightNode*)malloc(sizeof(FlightNode));
 
-    printf("Enter Flight ID: ");
-    scanf("%d", &newNode->data.flightID);
+    char flightIDStr[100];
+int validFlightID = 0;
+do {
+    printf("Enter Flight ID : ");
+    scanf("%s", flightIDStr);
+
+    validFlightID = 1;
+    for (int i = 0; flightIDStr[i]; i++) {
+        if (!isdigit(flightIDStr[i])) {
+            validFlightID = 0;
+            printf("Invalid input. Flight ID must be numbers only.\n");
+            break;
+        }
+    }
+
+    if (validFlightID) {
+        newNode->data.flightID = atoi(flightIDStr);
+    }
+
+} while (!validFlightID);
 
     const char* validAirports[] = {"BKK", "HKT", "NRT", "SYD", "BER", "GRU", "YYZ"};
     int isValidAirport = 0;
