@@ -14,3 +14,4 @@ BookingDate,Email,FirstName,Class,Seat,SpecialRequest,LuggageSize,Meal,Wifi,Flig
 2025-05-05,@.com,Kan,Economy,B29,-,large,vegan,yes,1002,1130.00
 2025-05-05,@.com,Korapin,First,C3,-,large,halal,no,1002,1360.00
 >>>>>>> 771f840a5eca460dd89491cc1151e5d21c5c51a9
+2025-05-06,@.com,asdf,Economy,A1,-,large,halal,no,6026,9235.11
