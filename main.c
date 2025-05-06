@@ -917,7 +917,6 @@ int dijkstra(const char* start, const char* end, char path[][10], int* pathLengt
 }
 
 // ===================== SEARCH FOR FLIGHT =====================
-
 void searchFlightRoute(char start[], char destination[], char path[][10], int* pathLength) {
     clearScreen();
     printf("===================================================================\n");
