@@ -921,11 +921,21 @@ int dijkstra(const char* start, const char* end, char path[][10], int* pathLengt
 void searchFlightRoute(char start[], char destination[], char path[][10], int* pathLength) {
     clearScreen();
     printf("===================================================================\n");
-    printf("                     SELECT ROUTE                                \n");
+    printf("                           SELECT ROUTE                            \n");
     printf("===================================================================\n");
-    printf("Available airports: BKK, HKT, SYD, NRT, GRU, BER, YYZ\n");
+    printf("Available airports:\n\n");
+    printf(" CODE   %-35s %-15s %-10s\n", "AIRPORT NAME", "CITY", "COUNTRY");
+    printf("-------------------------------------------------------------------\n");
+    printf(" BKK    %-35s %-15s %-10s\n", "Suvarnabhumi Airport", "Bangkok", "Thailand");
+    printf(" HKT    %-35s %-15s %-10s\n", "Phuket International Airport", "Phuket", "Thailand");
+    printf(" SYD    %-35s %-15s %-10s\n", "Sydney Kingsford Smith Airport", "Sydney", "Australia");
+    printf(" NRT    %-35s %-15s %-10s\n", "Narita International Airport", "Tokyo", "Japan");
+    printf(" GRU    %-35s %-15s %-10s\n", "Sao Paulo/Guarulhos Int'l", "Sao Paulo", "Brazil");
+    printf(" BER    %-35s %-15s %-10s\n", "Berlin Brandenburg Airport", "Berlin", "Germany");
+    printf(" YYZ    %-35s %-15s %-10s\n", "Toronto Pearson Int'l Airport", "Toronto", "Canada");
+    
 
-    printf("Enter your departure airport (Example: BKK): ");
+    printf("\nEnter your departure airport (Example: BKK): ");
     scanf("%s", start);
     for (int i = 0; start[i]; i++) start[i] = toupper(start[i]);
 
