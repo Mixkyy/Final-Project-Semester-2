@@ -1597,9 +1597,8 @@ void removeFlight() {
     int id;
     printf("\nEnter Flight ID to remove: ");
     scanf("%d", &id);
-    
     clearScreen();
-
+    
     FlightNode *current = flightHead, *prev = NULL;
     while (current) {
         if (current->data.flightID == id && current->data.seatsAvailable == current->data.capacity) {
