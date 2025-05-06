@@ -1243,6 +1243,13 @@ void initializeSeatMap(FlightNode* chosenFlight, char* classType) {
             printf("Invalid seat row '%d'. Must be between 1 and %d.\n", row, maxRow);
             continue;
         }
+        int colIndex = strchr(seatColumns, column) - seatColumns;
+        int seatPos = (row - 1) * seatsPerRow + colIndex;
+
+        if (seatPos >= totalSeats) {
+            printf("Seat %c%d does not exist in this class. Please choose a valid seat.\n", column, row);
+            continue;
+        }
 
         if (isSeatOccupied(chosenFlight->data.flightID, classType, p.seatNumber)) {
             printf("Seat %s is already occupied. Please choose another seat.\n", p.seatNumber);
@@ -1525,6 +1532,27 @@ void addFlight() {
             printf("Invalid destination (must be valid and different from departure). Try again.\n");
     } while (!isValidAirport || strcmp(newNode->data.departure, newNode->data.destination) == 0);
 
+        Airport* origin = findAirport(newNode->data.departure);
+        int connectionExists = 0;
+        if (origin) {
+            Connection* c = origin->connections;
+            while (c) {
+                if (strcmp(c->destinationCode, newNode->data.destination) == 0) {
+                    connectionExists = 1;
+                    break;
+                }
+                c = c->next;
+            }
+        }
+    
+        if (!connectionExists) {
+            printf("\nError: No direct connection between %s and %s. Cannot add flight.\n",
+                   newNode->data.departure, newNode->data.destination);
+            getchar(); getchar(); // Wait for Enter before returning
+            free(newNode);
+            return;
+        }
+    
     do {
         printf("Enter Date (YYYY-MM-DD): ");
         scanf("%s", newNode->data.flight_date);
